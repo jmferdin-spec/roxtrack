@@ -102,7 +102,7 @@ function fmtDate(unixSec) {
     var m = String(d.getMinutes()).padStart(2, '0');
     var ampm = h >= 12 ? 'PM' : 'AM';
     h = h % 12 || 12;
-    return day + ', ' + month + ' ' + date + ' · ' + h + ':' + m + ' ' + ampm;
+    return day + ', ' + month + ' ' + date + ', ' + d.getFullYear() + ' · ' + h + ':' + m + ' ' + ampm;
 }
 
 function getTypeFromName(name) {
