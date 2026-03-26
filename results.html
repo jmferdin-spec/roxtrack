@@ -16,23 +16,18 @@
 }
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
 .page{max-width:560px;margin:0 auto;padding:24px 16px 60px}
-
 .logo{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;color:var(--accent);text-align:center}
 .subtitle{text-align:center;color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
-
 .total-block{text-align:center;margin-bottom:24px;padding:24px 16px;background:var(--surface);border-radius:14px;border:1px solid var(--border)}
 .total-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px}
 .total-time{font-family:'Bebas Neue',sans-serif;font-size:68px;color:var(--accent);line-height:1;letter-spacing:2px}
 .total-pct{font-size:12px;color:var(--dim);margin-top:6px}
-
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
 .stat{background:var(--surface);border-radius:10px;padding:14px;border:1px solid var(--border)}
 .stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
 .stat-value{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px}
 .c-run{color:var(--run)}.c-station{color:var(--station)}.c-roxzone{color:var(--roxzone)}.c-warmup{color:var(--muted)}
-
 .section-hdr{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-
 .lap-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px}
 .lap-table th{text-align:left;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;padding:6px 6px 10px;border-bottom:1px solid var(--border);font-weight:500}
 .lap-table th:not(:first-child){text-align:right}
@@ -45,17 +40,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .lap-pace{color:var(--muted)}
 .lap-dist{color:var(--muted)}
 .lap-cumul{color:var(--dim);font-size:15px}
-.lap-detail{font-size:11px;color:var(--dim);font-weight:400}
-
 .actions{display:flex;gap:8px;margin-top:28px}
 .btn{flex:1;padding:14px;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:center;transition:transform .12s}
 .btn:active{transform:scale(0.97)}
 .btn-primary{background:var(--accent);color:#000}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-
 .empty{text-align:center;padding:80px 20px;color:var(--muted)}
 .empty h2{color:var(--text);margin-bottom:12px;font-size:20px}
-
 @media print{
 body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .page{padding:8px;max-width:100%}
@@ -79,103 +70,117 @@ body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adj
 <div id="content"></div>
 </div>
 <script>
-function fmt(sec){
-if(sec<0)sec=0;
-var h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;
-if(h>0)return h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-}
-function fmtPace(sec,distM){
-if(!distM||distM<10)return'—';
-var pacePerMile=sec/(distM/1609.34);
-var pm=Math.floor(pacePerMile/60);
-var ps=Math.round(pacePerMile%60);
-if(ps===60){pm++;ps=0;}
-return pm+':'+String(ps).padStart(2,'0')+'/mi';
-}
-function typeClass(t){return['run','roxzone','station'][t]||'station';}
-
-function init(){
-var p=new URLSearchParams(window.location.search);
-var t=parseInt(p.get('t'))||0;
-var w=parseInt(p.get('w'))||0;
-var r=parseInt(p.get('r'))||0;
-var s=parseInt(p.get('s'))||0;
-var z=parseInt(p.get('z'))||0;
-var pct=parseInt(p.get('p'))||100;
-var rz=parseInt(p.get('rz'))||0;
-var lapsStr=p.get('l')||'';
-var el=document.getElementById('content');
-
-if(!t&&!lapsStr){
-el.innerHTML='<div class="empty"><h2>No Data</h2><p>This page receives results from the RoxTrack watch app.<br>Use Share Results after completing a race.</p></div>';
-return;
+function fmt(sec) {
+    if (sec < 0) sec = 0;
+    var h = Math.floor(sec / 3600);
+    var m = Math.floor((sec % 3600) / 60);
+    var s = sec % 60;
+    if (h > 0) return h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 }
 
-var html='';
-
-html+='<div class="total-block">';
-html+='<div class="total-label">Race Time</div>';
-html+='<div class="total-time">'+fmt(t)+'</div>';
-if(pct!==100)html+='<div class="total-pct">'+pct+'% Distance</div>';
-html+='</div>';
-
-html+='<div class="stats">';
-html+='<div class="stat"><div class="stat-label">Warm Up</div><div class="stat-value c-warmup">'+fmt(w)+'</div></div>';
-html+='<div class="stat"><div class="stat-label">Total Run</div><div class="stat-value c-run">'+fmt(r)+'</div></div>';
-html+='<div class="stat"><div class="stat-label">Total Station</div><div class="stat-value c-station">'+fmt(s)+'</div></div>';
-if(rz)html+='<div class="stat"><div class="stat-label">RoxZone</div><div class="stat-value c-roxzone">'+fmt(z)+'</div></div>';
-html+='</div>';
-
-if(lapsStr){
-var laps=lapsStr.split(',');
-html+='<div class="section-hdr">Lap Breakdown</div>';
-html+='<table class="lap-table"><thead><tr>';
-html+='<th>Segment</th><th>Time</th><th>Cumul.</th><th>\u2665 Avg</th><th>Pace</th><th>Dist</th>';
-html+='</tr></thead><tbody>';
-
-var cumul=0;
-for(var i=0;i<laps.length;i++){
-var parts=laps[i].split('~');
-var name=decodeURIComponent(parts[0]||'');
-var dur=parseInt(parts[1])||0;
-var hr=parseInt(parts[2])||0;
-var tp=parseInt(parts[3])||2;
-var dist=parseInt(parts[4])||0;
-cumul+=dur;
-
-var cls=getType(name);
-var pace=(tp===0)?fmtPace(dur,dist):'—';
-var distStr=(tp===0&&dist>0)?(dist+'m'):'—';
-
-html+='<tr>';
-html+='<td><span class="lap-name '+cls+'">'+name+'</span></td>';
-html+='<td>'+fmt(dur)+'</td>';
-html+='<td class="lap-cumul">'+fmt(cumul)+'</td>';
-html+='<td class="lap-hr">'+(hr>0?hr:'—')+'</td>';
-html+='<td class="lap-pace">'+pace+'</td>';
-html+='<td class="lap-dist">'+distStr+'</td>';
-html+='</tr>';
-}
-html+='</tbody></table>';
+function fmtPace(sec, distM) {
+    if (!distM || distM < 10) return '\u2014';
+    var pacePerMile = sec / (distM / 1609.34);
+    var pm = Math.floor(pacePerMile / 60);
+    var ps = Math.round(pacePerMile % 60);
+    if (ps === 60) { pm++; ps = 0; }
+    return pm + ':' + String(ps).padStart(2, '0') + '/mi';
 }
 
-html+='<div class="actions">';
-html+='<button class="btn btn-primary" onclick="window.print()">Save as PDF</button>';
-html+='<button class="btn btn-secondary" onclick="doShare()">Share</button>';
-html+='</div>';
-
-el.innerHTML=html;
+function getTypeFromName(name) {
+    if (name.indexOf('Run') === 0) return 'run';
+    if (name === 'RoxZone') return 'roxzone';
+    return 'station';
 }
 
-function doShare(){
-if(navigator.share){
-navigator.share({title:'RoxTrack Results',url:window.location.href});
-}else{
-navigator.clipboard.writeText(window.location.href);
-alert('Link copied to clipboard');
+function init() {
+    try {
+        var p = new URLSearchParams(window.location.search);
+        var t = parseInt(p.get('t')) || 0;
+        var w = parseInt(p.get('w')) || 0;
+        var r = parseInt(p.get('r')) || 0;
+        var s = parseInt(p.get('s')) || 0;
+        var z = parseInt(p.get('z')) || 0;
+        var pct = parseInt(p.get('p')) || 100;
+        var rz = parseInt(p.get('rz')) || 0;
+        var lapsStr = p.get('l') || '';
+        var el = document.getElementById('content');
+
+        if (!t && !lapsStr) {
+            el.innerHTML = '<div class="empty"><h2>No Data</h2><p>This page receives results from the RoxTrack watch app.<br>Use Share Results after completing a race.</p></div>';
+            return;
+        }
+
+        var html = '';
+
+        html += '<div class="total-block">';
+        html += '<div class="total-label">Race Time</div>';
+        html += '<div class="total-time">' + fmt(t) + '</div>';
+        if (pct !== 100) html += '<div class="total-pct">' + pct + '% Distance</div>';
+        html += '</div>';
+
+        html += '<div class="stats">';
+        html += '<div class="stat"><div class="stat-label">Warm Up</div><div class="stat-value c-warmup">' + fmt(w) + '</div></div>';
+        html += '<div class="stat"><div class="stat-label">Total Run</div><div class="stat-value c-run">' + fmt(r) + '</div></div>';
+        html += '<div class="stat"><div class="stat-label">Total Station</div><div class="stat-value c-station">' + fmt(s) + '</div></div>';
+        if (rz) html += '<div class="stat"><div class="stat-label">RoxZone</div><div class="stat-value c-roxzone">' + fmt(z) + '</div></div>';
+        html += '</div>';
+
+        if (lapsStr) {
+            var laps = lapsStr.split(',');
+            html += '<div class="section-hdr">Lap Breakdown</div>';
+            html += '<table class="lap-table"><thead><tr>';
+            html += '<th>Segment</th><th>Time</th><th>Cumul.</th><th>\u2665 Avg</th><th>Pace</th><th>Dist</th>';
+            html += '</tr></thead><tbody>';
+
+            var cumul = 0;
+            for (var i = 0; i < laps.length; i++) {
+                var parts = laps[i].split('~');
+                var name = decodeURIComponent(parts[0] || '').replace(/\+/g, ' ');
+                var dur = parseInt(parts[1]) || 0;
+                var hr = parseInt(parts[2]) || 0;
+                var tp = parseInt(parts[3]) || 2;
+                var dist = parseInt(parts[4]) || 0;
+                cumul += dur;
+
+                var cls = getTypeFromName(name);
+                var isRun = (cls === 'run');
+                var pace = isRun ? fmtPace(dur, dist) : '\u2014';
+                var distStr = (isRun && dist > 0) ? (dist + 'm') : '\u2014';
+
+                html += '<tr>';
+                html += '<td><span class="lap-name ' + cls + '">' + name + '</span></td>';
+                html += '<td>' + fmt(dur) + '</td>';
+                html += '<td class="lap-cumul">' + fmt(cumul) + '</td>';
+                html += '<td class="lap-hr">' + (hr > 0 ? hr : '\u2014') + '</td>';
+                html += '<td class="lap-pace">' + pace + '</td>';
+                html += '<td class="lap-dist">' + distStr + '</td>';
+                html += '</tr>';
+            }
+            html += '</tbody></table>';
+        }
+
+        html += '<div class="actions">';
+        html += '<button class="btn btn-primary" onclick="window.print()">Save as PDF</button>';
+        html += '<button class="btn btn-secondary" onclick="doShare()">Share</button>';
+        html += '</div>';
+
+        el.innerHTML = html;
+    } catch (e) {
+        document.getElementById('content').innerHTML = '<div class="empty"><h2>Error</h2><p>' + e.message + '</p></div>';
+    }
 }
+
+function doShare() {
+    if (navigator.share) {
+        navigator.share({ title: 'RoxTrack Results', url: window.location.href });
+    } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard');
+    }
 }
+
 init();
 </script>
 </body>
