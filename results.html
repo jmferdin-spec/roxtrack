@@ -83,11 +83,11 @@ function fmt(sec) {
 
 function fmtPace(sec, distM) {
     if (!distM || distM < 10) return '\u2014';
-    var pacePerMile = sec / (distM / 1609.34);
-    var pm = Math.floor(pacePerMile / 60);
-    var ps = Math.round(pacePerMile % 60);
+    var pacePerKm = sec / (distM / 1000);
+    var pm = Math.floor(pacePerKm / 60);
+    var ps = Math.round(pacePerKm % 60);
     if (ps === 60) { pm++; ps = 0; }
-    return pm + ':' + String(ps).padStart(2, '0') + '/mi';
+    return pm + ':' + String(ps).padStart(2, '0') + '/km';
 }
 
 function fmtDate(unixSec) {
