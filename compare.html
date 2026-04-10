@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoxTrack Compare</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;
+--text:#e8e8e8;--muted:#888;--dim:#555;
+--accent:#f5c518;
+--run:#22c55e;--station:#f97316;--roxzone:#eab308;
+--faster:#22c55e;--slower:#ef4444;--even:#888;
+--border:#2a2a2a;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+.page{max-width:720px;margin:0 auto;padding:24px 16px 60px}
+
+.logo{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;color:var(--accent);text-align:center}
+.subtitle{text-align:center;color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
+
+.header{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.header-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.header-card .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.header-card .date{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--accent)}
+.header-card .time{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;margin-top:2px}
+.header-card.a .lbl{color:#5ea7ff}
+.header-card.b .lbl{color:#ff8c5e}
+
+.summary{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:24px}
+.sum-row{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center}
+.sum-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.sum-val{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.5px;min-width:60px;text-align:right}
+.sum-delta{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.5px;min-width:64px;text-align:right;padding:2px 8px;border-radius:6px}
+.delta-faster{color:var(--faster);background:rgba(34,197,94,0.1)}
+.delta-slower{color:var(--slower);background:rgba(239,68,68,0.1)}
+.delta-even{color:var(--even);background:rgba(136,136,136,0.1)}
+
+.section-hdr{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+.lap-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px}
+.lap-table th{text-align:right;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;padding:6px 4px 10px;border-bottom:1px solid var(--border);font-weight:500}
+.lap-table th:first-child{text-align:left}
+.lap-table td{padding:9px 4px;border-bottom:1px solid var(--border);vertical-align:middle;text-align:right;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.3px}
+.lap-table td:first-child{text-align:left;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600}
+.lap-table tr:last-child td{border-bottom:none}
+.lap-name.run{color:var(--run)}
+.lap-name.station{color:var(--station)}
+.lap-name.roxzone{color:var(--roxzone)}
+.cell-pace{color:var(--muted);font-size:12px}
+.cell-cumul{color:var(--dim);font-size:13px}
+.cell-delta{font-size:15px}
+.cell-delta.faster{color:var(--faster)}
+.cell-delta.slower{color:var(--slower)}
+.cell-delta.even{color:var(--even)}
+
+.actions{display:flex;gap:8px;margin-top:28px}
+.btn{flex:1;padding:14px;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:center;transition:transform .12s}
+.btn:active{transform:scale(0.97)}
+.btn-primary{background:var(--accent);color:#000}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+
+.empty{text-align:center;padding:80px 20px;color:var(--muted)}
+.empty h2{color:var(--text);margin-bottom:12px;font-size:20px}
+
+@media (max-width:480px){
+.lap-table{font-size:11px}
+.lap-table td{padding:8px 3px;font-size:13px}
+.lap-table td:first-child{font-size:12px}
+}
+
+@media print{
+body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{padding:8px;max-width:100%}
+.actions{display:none!important}
+.header-card,.sum-row{border-color:#ccc;background:#f5f5f5}
+.logo,.header-card .date{color:#b8960f}
+.delta-faster,.cell-delta.faster{color:#16a34a;background:transparent}
+.delta-slower,.cell-delta.slower{color:#b91c1c;background:transparent}
+.section-hdr{color:#666;border-color:#ccc}
+.lap-table th{color:#666;border-color:#ccc}
+.lap-table td{border-color:#e0e0e0}
+}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="logo">ROXTRACK</div>
+<div class="subtitle">Race Comparison</div>
+<div id="content"></div>
+</div>
+<script>
+function fmt(sec){
+if(sec<0)sec=0;
+var h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;
+if(h>0)return h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function fmtPace(sec,distM){
+if(!distM||distM<10)return'—';
+var pacePerKm=sec/(distM/1000);
+var pm=Math.floor(pacePerKm/60);
+var ps=Math.round(pacePerKm%60);
+if(ps===60){pm++;ps=0;}
+return pm+':'+String(ps).padStart(2,'0')+'/km';
+}
+function fmtDelta(d){
+if(d===0)return'±0';
+var sign=d<0?'-':'+';
+return sign+fmt(Math.abs(d));
+}
+function deltaClass(d){
+if(d===0)return'even';
+return d<0?'faster':'slower';
+}
+function typeClass(t){return['run','roxzone','station'][t]||'station';}
+function fmtDate(unix){
+if(!unix)return'';
+var d=new Date(unix*1000);
+return(d.getMonth()+1)+'/'+d.getDate()+'/'+String(d.getFullYear()).slice(-2);
+}
+
+function parseRace(p,sfx){
+var lapsStr=p.get('l'+sfx)||'';
+var laps=[];
+if(lapsStr){
+var parts=lapsStr.split(',');
+for(var i=0;i<parts.length;i++){
+var f=parts[i].split('~');
+laps.push({
+name:decodeURIComponent(f[0]||''),
+dur:parseInt(f[1])||0,
+hr:parseInt(f[2])||0,
+type:parseInt(f[3])||2,
+dist:parseInt(f[4])||0
+});
+}
+}
+return{
+total:parseInt(p.get('t'+sfx))||0,
+warmup:parseInt(p.get('w'+sfx))||0,
+run:parseInt(p.get('r'+sfx))||0,
+station:parseInt(p.get('s'+sfx))||0,
+roxzone:parseInt(p.get('z'+sfx))||0,
+ts:parseInt(p.get('dt'+sfx))||0,
+laps:laps
+};
+}
+
+function init(){
+var p=new URLSearchParams(window.location.search);
+var el=document.getElementById('content');
+
+var a=parseRace(p,'1');
+var b=parseRace(p,'2');
+var pct=parseInt(p.get('p'))||100;
+var rz=parseInt(p.get('rz'))||0;
+
+if(!a.total&&!b.total){
+el.innerHTML='<div class="empty"><h2>No Data</h2><p>This page receives comparison data from the RoxTrack watch app.<br>Use Compare to... in race history.</p></div>';
+return;
+}
+
+var dateA=fmtDate(a.ts)||'Race A';
+var dateB=fmtDate(b.ts)||'Race B';
+
+var html='';
+
+// Header cards
+html+='<div class="header">';
+html+='<div class="header-card a"><div class="lbl">Race A</div><div class="date">'+dateA+'</div><div class="time">'+fmt(a.total)+'</div></div>';
+html+='<div class="header-card b"><div class="lbl">Race B</div><div class="date">'+dateB+'</div><div class="time">'+fmt(b.total)+'</div></div>';
+html+='</div>';
+
+if(pct!==100){
+html+='<div style="text-align:center;color:var(--dim);font-size:11px;margin-bottom:16px;letter-spacing:1px;text-transform:uppercase">'+pct+'% Distance</div>';
+}
+
+// Summary stats
+function sumRow(label,va,vb){
+var d=vb-va;
+html+='<div class="sum-row">';
+html+='<div class="sum-label">'+label+'</div>';
+html+='<div class="sum-val">'+fmt(va)+'</div>';
+html+='<div class="sum-val">'+fmt(vb)+'</div>';
+html+='<div class="sum-delta delta-'+deltaClass(d)+'">'+fmtDelta(d)+'</div>';
+html+='</div>';
+}
+html+='<div class="summary">';
+sumRow('Total',a.total,b.total);
+sumRow('Run',a.run,b.run);
+sumRow('Station',a.station,b.station);
+if(rz)sumRow('RoxZone',a.roxzone,b.roxzone);
+html+='</div>';
+
+// Lap breakdown
+var n=Math.min(a.laps.length,b.laps.length);
+if(n>0){
+html+='<div class="section-hdr">Lap Breakdown</div>';
+html+='<table class="lap-table"><thead><tr>';
+html+='<th>Segment</th><th>A</th><th>B</th><th>Δ</th><th>Pace A</th><th>Pace B</th><th>Cum A</th><th>Cum B</th>';
+html+='</tr></thead><tbody>';
+var cumA=0,cumB=0;
+for(var i=0;i<n;i++){
+var la=a.laps[i],lb=b.laps[i];
+cumA+=la.dur;cumB+=lb.dur;
+var d=lb.dur-la.dur;
+var cls=typeClass(la.type);
+var pa=(la.type===0)?fmtPace(la.dur,la.dist):'—';
+var pb=(lb.type===0)?fmtPace(lb.dur,lb.dist):'—';
+html+='<tr>';
+html+='<td><span class="lap-name '+cls+'">'+la.name+'</span></td>';
+html+='<td>'+fmt(la.dur)+'</td>';
+html+='<td>'+fmt(lb.dur)+'</td>';
+html+='<td class="cell-delta '+deltaClass(d)+'">'+fmtDelta(d)+'</td>';
+html+='<td class="cell-pace">'+pa+'</td>';
+html+='<td class="cell-pace">'+pb+'</td>';
+html+='<td class="cell-cumul">'+fmt(cumA)+'</td>';
+html+='<td class="cell-cumul">'+fmt(cumB)+'</td>';
+html+='</tr>';
+}
+html+='</tbody></table>';
+}
+
+html+='<div class="actions">';
+html+='<button class="btn btn-primary" onclick="window.print()">Save as PDF</button>';
+html+='<button class="btn btn-secondary" onclick="doShare()">Share</button>';
+html+='</div>';
+
+el.innerHTML=html;
+}
+
+function doShare(){
+if(navigator.share){
+navigator.share({title:'RoxTrack Comparison',url:window.location.href});
+}else{
+navigator.clipboard.writeText(window.location.href);
+alert('Link copied to clipboard');
+}
+}
+init();
+</script>
+</body>
+</html>
