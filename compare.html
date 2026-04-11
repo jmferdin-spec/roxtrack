@@ -129,11 +129,12 @@ if(lapsStr){
 var parts=lapsStr.split(',');
 for(var i=0;i<parts.length;i++){
 var f=parts[i].split('~');
+var tRaw=parseInt(f[3]);
 laps.push({
 name:decodeURIComponent(f[0]||''),
 dur:parseInt(f[1])||0,
 hr:parseInt(f[2])||0,
-type:parseInt(f[3])||2,
+type:isNaN(tRaw)?2:tRaw,
 dist:parseInt(f[4])||0
 });
 }
