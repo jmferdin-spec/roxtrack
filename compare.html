@@ -180,7 +180,7 @@ html+='<div style="text-align:center;color:var(--dim);font-size:11px;margin-bott
 
 // Summary stats
 function sumRow(label,va,vb){
-var d=vb-va;
+var d=va-vb;
 html+='<div class="sum-row">';
 html+='<div class="sum-label">'+label+'</div>';
 html+='<div class="sum-val">'+fmt(va)+'</div>';
@@ -200,13 +200,13 @@ var n=Math.min(a.laps.length,b.laps.length);
 if(n>0){
 html+='<div class="section-hdr">Lap Breakdown</div>';
 html+='<table class="lap-table"><thead><tr>';
-html+='<th>Segment</th><th>A</th><th>B</th><th>Δ</th><th>Pace A</th><th>Pace B</th><th>Cum A</th><th>Cum B</th>';
+html+='<th>Segment</th><th>A</th><th>B</th><th>DIF</th><th>Pace A</th><th>Pace B</th><th>CU A</th><th>CU B</th>';
 html+='</tr></thead><tbody>';
 var cumA=0,cumB=0;
 for(var i=0;i<n;i++){
 var la=a.laps[i],lb=b.laps[i];
 cumA+=la.dur;cumB+=lb.dur;
-var d=lb.dur-la.dur;
+var d=la.dur-lb.dur;
 var cls=typeClass(la.type);
 var pa=(la.type===0)?fmtPace(la.dur,la.dist):'—';
 var pb=(lb.type===0)?fmtPace(lb.dur,lb.dist):'—';
