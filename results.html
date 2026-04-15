@@ -152,7 +152,7 @@ function init() {
         html += '</div>';
 
         if (lapsStr) {
-            var laps = lapsStr.split(',');
+            var laps = lapsStr.split('|');
             html += '<div class="section-hdr">Lap Breakdown</div>';
             html += '<table class="lap-table"><thead><tr>';
             html += '<th>Segment</th><th>Time</th><th>Cumul.</th><th>\u2665 Avg</th><th>Pace</th><th>Dist</th>';
@@ -160,7 +160,7 @@ function init() {
 
             var cumul = 0;
             for (var i = 0; i < laps.length; i++) {
-                var parts = laps[i].split('~');
+                var parts = laps[i].split('^');
                 var name = decodeURIComponent(parts[0] || '').replace(/\+/g, ' ');
                 var dur = parseInt(parts[1]) || 0;
                 var hr = parseInt(parts[2]) || 0;

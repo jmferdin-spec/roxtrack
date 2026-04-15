@@ -126,9 +126,9 @@ function parseRace(p,sfx){
 var lapsStr=p.get('l'+sfx)||'';
 var laps=[];
 if(lapsStr){
-var parts=lapsStr.split(',');
+var parts=lapsStr.split('|');
 for(var i=0;i<parts.length;i++){
-var f=parts[i].split('~');
+var f=parts[i].split('^');
 var tRaw=parseInt(f[3]);
 laps.push({
 name:decodeURIComponent(f[0]||''),
