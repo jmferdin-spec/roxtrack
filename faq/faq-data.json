@@ -8,11 +8,11 @@
       },
       {
         "q": "Which Garmin devices are supported?",
-        "a": "RoxTrack supports most modern Garmin watches with Connect IQ 4.0+, including the Fenix 7 series, Forerunner 265/965, Epix Gen 2, and Venu 3 series. Check the Connect IQ store listing for the full compatibility list."
+        "a": "RoxTrack supports a wide range of Garmin watches — from the Fenix 6 series all the way through the latest Fenix 8, Forerunner 970, and Venu 4. It also works on touchscreen watches like the Vivoactive 5/6, Venu Sq 2, and Forerunner 165. In total, 50+ devices are supported including the Epix 2, Forerunner 245/255/265/745/945/955/965, and more. Check the Connect IQ store listing for the full compatibility list."
       },
       {
         "q": "Is RoxTrack free?",
-        "a": "RoxTrack is available as a paid app on the Garmin Connect IQ Store. A one-time purchase gives you lifetime access to all updates."
+        "a": "Yes, RoxTrack is completely free! If you find it useful and want to support ongoing development, you can <a href=\"https://buymeacoffee.com/jmferdin\" target=\"_blank\">buy me a coffee</a>. Donations are always appreciated but never required."
       }
     ]
   },
@@ -59,7 +59,15 @@
     "questions": [
       {
         "q": "Can I create custom workouts?",
-        "a": "Yes! As of v4, RoxTrack supports custom workout creation directly on the watch. You can build your own interval structures and save them for reuse."
+        "a": "Yes! As of v4, RoxTrack supports custom workout creation directly on the watch. You can build your own interval structures, give them a custom name, and save them for reuse. Please note that custom workouts are not supported on all devices — older or lower-memory watches may not have this feature available."
+      },
+      {
+        "q": "Can I name my custom workouts?",
+        "a": "Yes! When creating a custom workout, you can give it a unique name using the on-watch text picker. This makes it easy to identify and select the right workout from your saved list."
+      },
+      {
+        "q": "Why can't I see the custom workout option on my watch?",
+        "a": "Custom workouts require additional memory and are not available on all supported devices. Some older or entry-level watches may not have enough resources to run this feature. If you don't see the option, your device may not be compatible with custom workouts — but the core HYROX race tracking works on all supported watches."
       },
       {
         "q": "How many custom workouts can I save?",
