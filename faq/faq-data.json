@@ -1,0 +1,87 @@
+[
+  {
+    "category": "General",
+    "questions": [
+      {
+        "q": "What is RoxTrack?",
+        "a": "RoxTrack is a Garmin Connect IQ app designed specifically for HYROX races. It tracks your time, heart rate, and distance across all 8 running segments and 8 workout stations, giving you real-time performance data on your wrist."
+      },
+      {
+        "q": "Which Garmin devices are supported?",
+        "a": "RoxTrack supports most modern Garmin watches with Connect IQ 4.0+, including the Fenix 7 series, Forerunner 265/965, Epix Gen 2, and Venu 3 series. Check the Connect IQ store listing for the full compatibility list."
+      },
+      {
+        "q": "Is RoxTrack free?",
+        "a": "RoxTrack is available as a paid app on the Garmin Connect IQ Store. A one-time purchase gives you lifetime access to all updates."
+      }
+    ]
+  },
+  {
+    "category": "During a Race",
+    "questions": [
+      {
+        "q": "How do I advance to the next segment?",
+        "a": "Press the Lap button on your watch to advance to the next segment. RoxTrack uses manual progression only — there's no auto-lap — so you're always in control of when transitions happen."
+      },
+      {
+        "q": "What if I press Lap too early?",
+        "a": "No worries! Press the Down button to trigger the undo flow, which will reverse you back to the previous segment. Your time and distance are rewound so your data stays accurate."
+      },
+      {
+        "q": "What data is shown during running segments?",
+        "a": "During running segments, RoxTrack displays your current pace, elapsed distance for that segment, segment time, and heart rate."
+      },
+      {
+        "q": "What data is shown during workout stations?",
+        "a": "During station segments, you'll see the station name, the target reps or meters, your elapsed time for that station, and your heart rate."
+      }
+    ]
+  },
+  {
+    "category": "After the Race",
+    "questions": [
+      {
+        "q": "Where can I see my race history?",
+        "a": "RoxTrack saves your last 10 races on-device. You can access them from the History menu within the app. Each entry shows your total time and per-segment breakdowns."
+      },
+      {
+        "q": "Does RoxTrack save to Garmin Connect?",
+        "a": "Yes! Each race is saved as a standard FIT activity file, which syncs automatically to Garmin Connect. You'll see individual laps for each segment in your activity details."
+      },
+      {
+        "q": "Can I export my race data?",
+        "a": "Your race data is saved as a FIT file in Garmin Connect, which you can export and analyze in any compatible platform like Strava, TrainingPeaks, or WKO."
+      }
+    ]
+  },
+  {
+    "category": "Custom Workouts",
+    "questions": [
+      {
+        "q": "Can I create custom workouts?",
+        "a": "Yes! As of v4, RoxTrack supports custom workout creation directly on the watch. You can build your own interval structures and save them for reuse."
+      },
+      {
+        "q": "How many custom workouts can I save?",
+        "a": "You can save multiple custom workouts on your device. The exact limit depends on your watch's available storage, but most users can comfortably store 10+ workouts."
+      }
+    ]
+  },
+  {
+    "category": "Troubleshooting",
+    "questions": [
+      {
+        "q": "The app crashed during my race. Is my data lost?",
+        "a": "If a crash occurs, any laps already recorded will be saved in the FIT file up to that point. The current in-progress segment may be lost. We recommend ensuring your watch firmware and the app are both up to date."
+      },
+      {
+        "q": "My heart rate data looks wrong. What can I do?",
+        "a": "Heart rate accuracy depends on your watch sensor. For best results during HYROX, wear the watch snugly above the wrist bone. For maximum accuracy, consider pairing an external chest strap HR monitor via ANT+ or Bluetooth."
+      },
+      {
+        "q": "How do I update RoxTrack?",
+        "a": "Updates are delivered through the Garmin Connect IQ Store. Open the Connect IQ app on your phone, go to My Apps, and check for available updates. We recommend keeping auto-updates enabled."
+      }
+    ]
+  }
+]

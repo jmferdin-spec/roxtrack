@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoxTrack FAQ - HYROX Race Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: #0a0a0f;
+            color: #e8e8ed;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 80px 20px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(229, 62, 62, 0.08) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff4d4d, #ff8a4d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #a0a0b0;
+            position: relative;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        .category {
+            margin-bottom: 40px;
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ff6b4d;
+            margin-bottom: 16px;
+            padding-left: 4px;
+        }
+
+        .faq-item {
+            background: #14141f;
+            border: 1px solid #2a2a3a;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .faq-item:hover {
+            border-color: #3a3a5a;
+        }
+
+        .faq-item.active {
+            border-color: #ff6b4d;
+            box-shadow: 0 4px 20px rgba(255, 107, 77, 0.1);
+        }
+
+        .faq-question {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            user-select: none;
+        }
+
+        .faq-question:hover {
+            background: #1a1a2a;
+        }
+
+        .faq-question span {
+            font-size: 1.05rem;
+            font-weight: 500;
+        }
+
+        .faq-icon {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            border-radius: 50%;
+            background: #1e1e30;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+            background: #ff6b4d;
+        }
+
+        .faq-icon svg {
+            width: 14px;
+            height: 14px;
+            stroke: #e8e8ed;
+            stroke-width: 2.5;
+            fill: none;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+        }
+
+        .faq-answer-inner {
+            padding: 0 24px 20px;
+            color: #a0a0b8;
+            font-size: 0.98rem;
+            line-height: 1.7;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            margin: -28px auto 40px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 20px 16px 48px;
+            border-radius: 12px;
+            border: 1px solid #2a2a3a;
+            background: #14141f;
+            color: #e8e8ed;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: #5a5a6a;
+        }
+
+        .search-input:focus {
+            border-color: #ff6b4d;
+            box-shadow: 0 0 0 3px rgba(255, 107, 77, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 36px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            stroke: #5a5a6a;
+            fill: none;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #5a5a6a;
+            font-size: 1.1rem;
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #4a4a5a;
+            font-size: 0.85rem;
+            border-top: 1px solid #1a1a2a;
+        }
+
+        .footer a {
+            color: #ff6b4d;
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2.2rem; }
+            .hero { padding: 60px 20px 50px; }
+            .faq-question { padding: 16px 18px; }
+            .faq-answer-inner { padding: 0 18px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>RoxTrack FAQ</h1>
+        <p>Everything you need to know about your HYROX race tracker</p>
+    </div>
+
+    <div class="search-container">
+        <svg class="search-icon" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" class="search-input" placeholder="Search questions..." id="searchInput">
+    </div>
+
+    <div class="container" id="faqContainer"></div>
+
+    <div class="no-results" id="noResults">
+        No questions match your search. Try different keywords.
+    </div>
+
+    <div class="footer">
+        <p>Still have questions? Reach out via the <a href="mailto:jmferdin@gmail.com">support email</a>.</p>
+    </div>
+
+    <script>
+        const plusIcon = `<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+
+        async function loadFAQ() {
+            try {
+                const response = await fetch('faq-data.json');
+                const data = await response.json();
+                renderFAQ(data);
+            } catch (e) {
+                // Fallback: try inline if fetch fails (e.g., file:// protocol)
+                document.getElementById('faqContainer').innerHTML =
+                    '<p style="text-align:center;color:#5a5a6a;padding:40px;">Unable to load FAQ data. Please ensure faq-data.json is served from the same location.</p>';
+            }
+        }
+
+        function renderFAQ(data) {
+            const container = document.getElementById('faqContainer');
+            container.innerHTML = '';
+
+            data.forEach(category => {
+                const section = document.createElement('div');
+                section.className = 'category';
+                section.innerHTML = `<h2 class="category-title">${category.category}</h2>`;
+
+                category.questions.forEach(item => {
+                    const faqItem = document.createElement('div');
+                    faqItem.className = 'faq-item';
+                    faqItem.dataset.question = item.q.toLowerCase();
+                    faqItem.dataset.answer = item.a.toLowerCase();
+
+                    faqItem.innerHTML = `
+                        <div class="faq-question">
+                            <span>${item.q}</span>
+                            <div class="faq-icon">${plusIcon}</div>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">${item.a}</div>
+                        </div>
+                    `;
+
+                    faqItem.querySelector('.faq-question').addEventListener('click', () => {
+                        toggleItem(faqItem);
+                    });
+
+                    section.appendChild(faqItem);
+                });
+
+                container.appendChild(section);
+            });
+        }
+
+        function toggleItem(item) {
+            const isActive = item.classList.contains('active');
+            const answer = item.querySelector('.faq-answer');
+
+            // Close all others
+            document.querySelectorAll('.faq-item.active').forEach(el => {
+                if (el !== item) {
+                    el.classList.remove('active');
+                    el.querySelector('.faq-answer').style.maxHeight = '0';
+                }
+            });
+
+            if (isActive) {
+                item.classList.remove('active');
+                answer.style.maxHeight = '0';
+            } else {
+                item.classList.add('active');
+                answer.style.maxHeight = answer.scrollHeight + 'px';
+            }
+        }
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            const items = document.querySelectorAll('.faq-item');
+            const categories = document.querySelectorAll('.category');
+            let totalVisible = 0;
+
+            items.forEach(item => {
+                const match = !query ||
+                    item.dataset.question.includes(query) ||
+                    item.dataset.answer.includes(query);
+                item.style.display = match ? '' : 'none';
+                if (match) totalVisible++;
+            });
+
+            // Hide empty categories
+            categories.forEach(cat => {
+                const visibleItems = cat.querySelectorAll('.faq-item:not([style*="display: none"])');
+                cat.style.display = visibleItems.length ? '' : 'none';
+            });
+
+            document.getElementById('noResults').style.display = totalVisible === 0 ? 'block' : 'none';
+        });
+
+        loadFAQ();
+    </script>
+</body>
+</html>
