@@ -76,6 +76,39 @@
     ]
   },
   {
+    "category": "Settings",
+    "questions": [
+      {
+        "q": "Where do I find the settings menu?",
+        "a": "From the main screen, press the menu button (or tap on touchscreen watches) to open the settings menu. From here you can configure all race options before starting your warmup."
+      },
+      {
+        "q": "What does Race Distance do?",
+        "a": "Race Distance lets you scale the workout to 25%, 50%, 75%, or 100% of a full HYROX race. All station targets and run distances adjust proportionally. This is great for training sessions where you want to practice the format without doing the full distance."
+      },
+      {
+        "q": "How do I set a Run Pace Target?",
+        "a": "Select Run Pace Target from the settings menu and scroll to choose your target pace, from 3:30/km up to 8:00/km in 5-second increments. During the race, your pace display will be color-coded — green when you're on or ahead of your target, red when you're slower."
+      },
+      {
+        "q": "What does Goal Time do?",
+        "a": "Goal Time lets you set a target finish time for your race, from 1 minute up to 3 hours. During the race, the timer will be color-coded: green when you're ahead of pace, orange when you're close (90%+), and red when you've exceeded your goal. Set it to OFF if you don't want goal tracking."
+      },
+      {
+        "q": "What are the Run Mode options?",
+        "a": "Run Mode controls how RoxTrack tracks your running segments. <strong>Outdoor</strong> uses GPS for real distance and pace. <strong>Indoor</strong> disables GPS and estimates distance. <strong>Treadmill</strong> is optimized for treadmill running. <strong>Cardio</strong> is for elliptical or similar machines where distance and pace aren't available — run segments display like stations instead."
+      },
+      {
+        "q": "What is the RoxZone setting?",
+        "a": "RoxZone adds transition segments between your runs and stations, just like the actual RoxZone areas in a HYROX race. When ON, these segments are tracked separately so you can see how long your transitions take. Turn it OFF if you want to go directly from station to run without tracking transitions."
+      },
+      {
+        "q": "What does the Touch setting do?",
+        "a": "Touch is OFF by default to prevent accidental screen taps during a race. When you turn it ON, tapping the screen works the same as pressing the Lap button to advance to the next segment. This can be useful on touchscreen watches if you prefer tapping over pressing a physical button."
+      }
+    ]
+  },
+  {
     "category": "Troubleshooting",
     "questions": [
       {
