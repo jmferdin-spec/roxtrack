@@ -111,89 +111,126 @@ function getTypeFromName(name) {
     return 'station';
 }
 
-function init() {
-    try {
-        var p = new URLSearchParams(window.location.search);
-        var t = parseInt(p.get('t')) || 0;
-        var w = parseInt(p.get('w')) || 0;
-        var r = parseInt(p.get('r')) || 0;
-        var s = parseInt(p.get('s')) || 0;
-        var z = parseInt(p.get('z')) || 0;
-        var pct = parseInt(p.get('p')) || 100;
-        var rz = parseInt(p.get('rz')) || 0;
-        var lapsStr = p.get('l') || '';
-        var dt = parseInt(p.get('dt')) || 0;
-        var el = document.getElementById('content');
+var API_BASE = 'https://roxtrack-api.jmferdin.workers.dev';
 
-        if (!t && !lapsStr) {
+function init() {
+    var p = new URLSearchParams(window.location.search);
+    var el = document.getElementById('content');
+    var id = p.get('id');
+
+    // New path: fetch from API by ID
+    if (id) {
+        el.innerHTML = '<div class="empty"><p>Loading results\u2026</p></div>';
+        fetch(API_BASE + '/result/' + encodeURIComponent(id))
+            .then(function(res) {
+                if (!res.ok) throw new Error('Race not found');
+                return res.json();
+            })
+            .then(function(json) {
+                if (!json.success || !json.data) throw new Error('Invalid response');
+                renderRace(json.data, el);
+            })
+            .catch(function(err) {
+                el.innerHTML = '<div class="empty"><h2>Error</h2><p>' + err.message + '</p></div>';
+            });
+        return;
+    }
+
+    // Legacy path: read data from URL params (backward compatibility)
+    try {
+        var d = {
+            t: parseInt(p.get('t')) || 0,
+            w: parseInt(p.get('w')) || 0,
+            r: parseInt(p.get('r')) || 0,
+            s: parseInt(p.get('s')) || 0,
+            z: parseInt(p.get('z')) || 0,
+            p: parseInt(p.get('p')) || 100,
+            rz: parseInt(p.get('rz')) || 0,
+            l: p.get('l') || '',
+            dt: parseInt(p.get('dt')) || 0
+        };
+        if (!d.t && !d.l) {
             el.innerHTML = '<div class="empty"><h2>No Data</h2><p>This page receives results from the RoxTrack watch app.<br>Use Share Results after completing a race.</p></div>';
             return;
         }
-
-        var html = '';
-
-        // Date/time line
-        var dateDisplay = dt ? fmtDate(dt) : null;
-        if (dateDisplay) {
-            html += '<div class="race-date"><span>' + dateDisplay + '</span></div>';
-        }
-
-        html += '<div class="total-block">';
-        html += '<div class="total-label">Race Time</div>';
-        html += '<div class="total-time">' + fmt(t) + '</div>';
-        if (pct !== 100) html += '<div class="total-pct">' + pct + '% Distance</div>';
-        html += '</div>';
-
-        html += '<div class="stats">';
-        html += '<div class="stat"><div class="stat-label">Warm Up</div><div class="stat-value c-warmup">' + fmt(w) + '</div></div>';
-        html += '<div class="stat"><div class="stat-label">Total Run</div><div class="stat-value c-run">' + fmt(r) + '</div></div>';
-        html += '<div class="stat"><div class="stat-label">Total Station</div><div class="stat-value c-station">' + fmt(s) + '</div></div>';
-        if (rz) html += '<div class="stat"><div class="stat-label">RoxZone</div><div class="stat-value c-roxzone">' + fmt(z) + '</div></div>';
-        html += '</div>';
-
-        if (lapsStr) {
-            var laps = lapsStr.split('|');
-            html += '<div class="section-hdr">Lap Breakdown</div>';
-            html += '<table class="lap-table"><thead><tr>';
-            html += '<th>Segment</th><th>Time</th><th>Cumul.</th><th>\u2665 Avg</th><th>Pace</th><th>Dist</th>';
-            html += '</tr></thead><tbody>';
-
-            var cumul = 0;
-            for (var i = 0; i < laps.length; i++) {
-                var parts = laps[i].split('^');
-                var name = decodeURIComponent(parts[0] || '').replace(/\+/g, ' ');
-                var dur = parseInt(parts[1]) || 0;
-                var hr = parseInt(parts[2]) || 0;
-                var tp = parseInt(parts[3]) || 2;
-                var dist = parseInt(parts[4]) || 0;
-                cumul += dur;
-
-                var cls = getTypeFromName(name);
-                var isRun = (cls === 'run');
-                var pace = isRun ? fmtPace(dur, dist) : '\u2014';
-                var distStr = (isRun && dist > 0) ? (dist + 'm') : '\u2014';
-
-                html += '<tr>';
-                html += '<td><span class="lap-name ' + cls + '">' + name + '</span></td>';
-                html += '<td>' + fmt(dur) + '</td>';
-                html += '<td class="lap-cumul">' + fmt(cumul) + '</td>';
-                html += '<td class="lap-hr">' + (hr > 0 ? hr : '\u2014') + '</td>';
-                html += '<td class="lap-pace">' + pace + '</td>';
-                html += '<td class="lap-dist">' + distStr + '</td>';
-                html += '</tr>';
-            }
-            html += '</tbody></table>';
-        }
-
-        html += '<div class="actions">';
-        html += '<button class="btn btn-primary" onclick="window.print()">Save as PDF</button>';
-        html += '<button class="btn btn-secondary" onclick="doShare()">Share</button>';
-        html += '</div>';
-
-        el.innerHTML = html;
+        renderRace(d, el);
     } catch (e) {
-        document.getElementById('content').innerHTML = '<div class="empty"><h2>Error</h2><p>' + e.message + '</p></div>';
+        el.innerHTML = '<div class="empty"><h2>Error</h2><p>' + e.message + '</p></div>';
     }
+}
+
+function renderRace(d, el) {
+    var t = d.t || 0;
+    var w = d.w || 0;
+    var r = d.r || 0;
+    var s = d.s || 0;
+    var z = d.z || 0;
+    var pct = d.p || 100;
+    var rz = d.rz || 0;
+    var lapsStr = d.l || '';
+    var dt = d.dt || 0;
+
+    var html = '';
+
+    // Date/time line
+    var dateDisplay = dt ? fmtDate(dt) : null;
+    if (dateDisplay) {
+        html += '<div class="race-date"><span>' + dateDisplay + '</span></div>';
+    }
+
+    html += '<div class="total-block">';
+    html += '<div class="total-label">Race Time</div>';
+    html += '<div class="total-time">' + fmt(t) + '</div>';
+    if (pct !== 100) html += '<div class="total-pct">' + pct + '% Distance</div>';
+    html += '</div>';
+
+    html += '<div class="stats">';
+    html += '<div class="stat"><div class="stat-label">Warm Up</div><div class="stat-value c-warmup">' + fmt(w) + '</div></div>';
+    html += '<div class="stat"><div class="stat-label">Total Run</div><div class="stat-value c-run">' + fmt(r) + '</div></div>';
+    html += '<div class="stat"><div class="stat-label">Total Station</div><div class="stat-value c-station">' + fmt(s) + '</div></div>';
+    if (rz) html += '<div class="stat"><div class="stat-label">RoxZone</div><div class="stat-value c-roxzone">' + fmt(z) + '</div></div>';
+    html += '</div>';
+
+    if (lapsStr) {
+        var laps = lapsStr.split('|');
+        html += '<div class="section-hdr">Lap Breakdown</div>';
+        html += '<table class="lap-table"><thead><tr>';
+        html += '<th>Segment</th><th>Time</th><th>Cumul.</th><th>\u2665 Avg</th><th>Pace</th><th>Dist</th>';
+        html += '</tr></thead><tbody>';
+
+        var cumul = 0;
+        for (var i = 0; i < laps.length; i++) {
+            var parts = laps[i].split('^');
+            var name = decodeURIComponent(parts[0] || '').replace(/\+/g, ' ');
+            var dur = parseInt(parts[1]) || 0;
+            var hr = parseInt(parts[2]) || 0;
+            var tp = parseInt(parts[3]) || 2;
+            var dist = parseInt(parts[4]) || 0;
+            cumul += dur;
+
+            var cls = getTypeFromName(name);
+            var isRun = (cls === 'run');
+            var pace = isRun ? fmtPace(dur, dist) : '\u2014';
+            var distStr = (isRun && dist > 0) ? (dist + 'm') : '\u2014';
+
+            html += '<tr>';
+            html += '<td><span class="lap-name ' + cls + '">' + name + '</span></td>';
+            html += '<td>' + fmt(dur) + '</td>';
+            html += '<td class="lap-cumul">' + fmt(cumul) + '</td>';
+            html += '<td class="lap-hr">' + (hr > 0 ? hr : '\u2014') + '</td>';
+            html += '<td class="lap-pace">' + pace + '</td>';
+            html += '<td class="lap-dist">' + distStr + '</td>';
+            html += '</tr>';
+        }
+        html += '</tbody></table>';
+    }
+
+    html += '<div class="actions">';
+    html += '<button class="btn btn-primary" onclick="window.print()">Save as PDF</button>';
+    html += '<button class="btn btn-secondary" onclick="doShare()">Share</button>';
+    html += '</div>';
+
+    el.innerHTML = html;
 }
 
 function doShare() {

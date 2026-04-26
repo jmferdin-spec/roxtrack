@@ -150,10 +150,62 @@ laps:laps
 };
 }
 
+var API_BASE='https://roxtrack-api.jmferdin.workers.dev';
+
+// Convert API race object {t,w,r,s,z,dt,l} to the format parseRace returns
+function apiToRace(d){
+var laps=[];
+var lapsStr=d.l||'';
+if(lapsStr){
+var parts=lapsStr.split('|');
+for(var i=0;i<parts.length;i++){
+var f=parts[i].split('^');
+var tRaw=parseInt(f[3]);
+laps.push({
+name:decodeURIComponent(f[0]||''),
+dur:parseInt(f[1])||0,
+hr:parseInt(f[2])||0,
+type:isNaN(tRaw)?2:tRaw,
+dist:parseInt(f[4])||0
+});
+}
+}
+return{
+total:d.t||0,
+warmup:d.w||0,
+run:d.r||0,
+station:d.s||0,
+roxzone:d.z||0,
+ts:d.dt||0,
+laps:laps
+};
+}
+
 function init(){
 var p=new URLSearchParams(window.location.search);
 var el=document.getElementById('content');
+var id=p.get('id');
 
+// New path: fetch from API
+if(id){
+el.innerHTML='<div class="empty"><p>Loading comparison\u2026</p></div>';
+fetch(API_BASE+'/compare/'+encodeURIComponent(id))
+.then(function(res){
+if(!res.ok) throw new Error('Comparison not found');
+return res.json();
+})
+.then(function(json){
+if(!json.success||!json.data) throw new Error('Invalid response');
+var d=json.data;
+renderCompare(apiToRace(d.race1),apiToRace(d.race2),d.p||100,d.rz||0,el);
+})
+.catch(function(err){
+el.innerHTML='<div class="empty"><h2>Error</h2><p>'+err.message+'</p></div>';
+});
+return;
+}
+
+// Legacy path: URL params
 var a=parseRace(p,'1');
 var b=parseRace(p,'2');
 var pct=parseInt(p.get('p'))||100;
@@ -164,6 +216,10 @@ el.innerHTML='<div class="empty"><h2>No Data</h2><p>This page receives compariso
 return;
 }
 
+renderCompare(a,b,pct,rz,el);
+}
+
+function renderCompare(a,b,pct,rz,el){
 var dateA=fmtDate(a.ts)||'Race A';
 var dateB=fmtDate(b.ts)||'Race B';
 
