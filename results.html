@@ -204,7 +204,8 @@ function renderRace(d, el) {
             var name = decodeURIComponent(parts[0] || '').replace(/\+/g, ' ');
             var dur = parseInt(parts[1]) || 0;
             var hr = parseInt(parts[2]) || 0;
-            var tp = parseInt(parts[3]) || 2;
+            var tpRaw = parseInt(parts[3]);
+            var tp = isNaN(tpRaw) ? 2 : tpRaw;
             var dist = parseInt(parts[4]) || 0;
             cumul += dur;
 
