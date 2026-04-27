@@ -184,7 +184,10 @@ laps:laps
 function init(){
 var p=new URLSearchParams(window.location.search);
 var el=document.getElementById('content');
-var id=p.get('id');
+
+// Check hash fragment first (#abc123), then query param (?id=abc123)
+var hash=window.location.hash.substring(1);
+var id=hash||p.get('id');
 
 // New path: fetch from API
 if(id){

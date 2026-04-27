@@ -105,18 +105,15 @@ function fmtDate(unixSec) {
     return day + ', ' + month + ' ' + date + ' · ' + h + ':' + m + ' ' + ampm;
 }
 
-function getTypeFromName(name) {
-    if (name.indexOf('Run') === 0) return 'run';
-    if (name === 'RoxZone') return 'roxzone';
-    return 'station';
-}
-
 var API_BASE = 'https://roxtrack-api.jmferdin.workers.dev';
 
 function init() {
     var p = new URLSearchParams(window.location.search);
     var el = document.getElementById('content');
-    var id = p.get('id');
+
+    // Check hash fragment first (#abc123), then query param (?id=abc123)
+    var hash = window.location.hash.substring(1);
+    var id = hash || p.get('id');
 
     // New path: fetch from API by ID
     if (id) {
