@@ -208,8 +208,8 @@ function renderRace(d, el) {
             var dist = parseInt(parts[4]) || 0;
             cumul += dur;
 
-            var cls = getTypeFromName(name);
-            var isRun = (cls === 'run');
+            var cls = (tp === 0) ? 'run' : (tp === 1) ? 'roxzone' : 'station';
+            var isRun = (tp === 0);
             var pace = isRun ? fmtPace(dur, dist) : '\u2014';
             var distStr = (isRun && dist > 0) ? (dist + 'm') : '\u2014';
 
