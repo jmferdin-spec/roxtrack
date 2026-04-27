@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoxTrack Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;
+--text:#e8e8e8;--muted:#888;--dim:#555;
+--accent:#f5c518;
+--run:#22c55e;--station:#f97316;--roxzone:#eab308;
+--border:#2a2a2a;--danger:#ef4444;--info:#3b82f6;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+.page{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;color:var(--accent);text-align:center}
+.subtitle{text-align:center;color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
+
+/* Auth bar */
+.auth-bar{display:flex;gap:8px;margin-bottom:20px}
+.auth-bar input{flex:1;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px}
+.auth-bar input::placeholder{color:var(--dim)}
+.auth-bar button{padding:10px 20px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;cursor:pointer}
+.auth-bar button:hover{opacity:0.9}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:8px}
+.tab{padding:8px 16px;background:none;border:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:6px 6px 0 0;transition:all .15s}
+.tab.active{color:var(--accent);background:var(--surface)}
+.tab:hover:not(.active){color:var(--text)}
+
+/* Stats cards */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat-card .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.stat-card .val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);letter-spacing:1px}
+
+/* Log entries */
+.log-list{display:flex;flex-direction:column;gap:6px}
+.log-entry{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:border-color .15s}
+.log-entry:hover{border-color:var(--accent)}
+.log-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.log-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);min-width:150px}
+.log-action{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:4px}
+.log-action.race{background:rgba(34,197,94,0.15);color:var(--run)}
+.log-action.compare{background:rgba(249,115,22,0.15);color:var(--station)}
+.log-id{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent)}
+.log-app{font-size:11px;color:var(--muted)}
+.log-meta{font-size:11px;color:var(--dim);margin-left:auto}
+.log-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.log-entry.expanded .log-detail{display:block}
+.log-json{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);white-space:pre-wrap;word-break:break-all;background:var(--surface2);padding:10px;border-radius:6px;max-height:300px;overflow-y:auto}
+
+/* Lookup */
+.lookup-bar{display:flex;gap:8px;margin-bottom:16px}
+.lookup-bar input{flex:1;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px}
+.lookup-bar input::placeholder{color:var(--dim)}
+.lookup-bar button{padding:10px 20px;background:var(--info);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;cursor:pointer}
+.lookup-result{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:12px}
+.lookup-result h3{font-size:14px;margin-bottom:8px;color:var(--accent)}
+
+/* Status */
+.status{text-align:center;padding:40px 20px;color:var(--muted)}
+.status.error{color:var(--danger)}
+
+/* Links */
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+@media (max-width:600px){
+.stats-grid{grid-template-columns:1fr 1fr}
+.log-meta{margin-left:0;width:100%}
+}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="logo">ROXTRACK</div>
+<div class="subtitle">Admin &amp; Debug Console</div>
+
+<div class="auth-bar">
+<input type="password" id="tokenInput" placeholder="Admin token..." />
+<button onclick="connect()">Connect</button>
+</div>
+
+<div id="main" style="display:none">
+<div class="tabs">
+<button class="tab active" data-tab="activity" onclick="switchTab('activity')">Activity Log</button>
+<button class="tab" data-tab="lookup" onclick="switchTab('lookup')">Lookup</button>
+<button class="tab" data-tab="stats" onclick="switchTab('stats')">Stats</button>
+</div>
+
+<!-- Activity tab -->
+<div id="tab-activity" class="tab-content">
+<div id="logStatus" class="status">Connect to load activity...</div>
+<div id="logList" class="log-list"></div>
+</div>
+
+<!-- Lookup tab -->
+<div id="tab-lookup" class="tab-content" style="display:none">
+<div class="lookup-bar">
+<input type="text" id="lookupId" placeholder="Enter share ID (e.g. abc1234)..." />
+<button onclick="doLookup()">Lookup</button>
+</div>
+<div id="lookupResult"></div>
+</div>
+
+<!-- Stats tab -->
+<div id="tab-stats" class="tab-content" style="display:none">
+<div id="statsContent" class="status">Connect to load stats...</div>
+</div>
+</div>
+</div>
+
+<script>
+var API='https://roxtrack-api.jmferdin.workers.dev';
+var TOKEN='';
+
+function getToken(){
+return document.getElementById('tokenInput').value.trim();
+}
+
+function apiUrl(path){
+return API+path+(path.includes('?')?'&':'?')+'token='+encodeURIComponent(TOKEN);
+}
+
+function connect(){
+TOKEN=getToken();
+if(!TOKEN){alert('Enter a token');return;}
+document.getElementById('main').style.display='block';
+loadActivity();
+loadStats();
+// Save token for this session
+try{sessionStorage.setItem('rox_token',TOKEN);}catch(e){}
+}
+
+// Restore token from session
+try{
+var saved=sessionStorage.getItem('rox_token');
+if(saved){
+document.getElementById('tokenInput').value=saved;
+TOKEN=saved;
+document.getElementById('main').style.display='block';
+loadActivity();
+loadStats();
+}
+}catch(e){}
+
+function switchTab(name){
+document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+document.querySelectorAll('.tab-content').forEach(function(t){t.style.display='none';});
+document.querySelector('[data-tab="'+name+'"]').classList.add('active');
+document.getElementById('tab-'+name).style.display='block';
+}
+
+// ── Activity Log ────────────────────────────────────────────────────
+function loadActivity(){
+var el=document.getElementById('logList');
+var st=document.getElementById('logStatus');
+st.textContent='Loading...';st.style.display='block';st.className='status';
+el.innerHTML='';
+
+fetch(apiUrl('/admin/recent?limit=100'))
+.then(function(r){
+if(r.status===401){throw new Error('Invalid token');}
+if(!r.ok){throw new Error('API error '+r.status);}
+return r.json();
+})
+.then(function(json){
+if(!json.success){throw new Error('Bad response');}
+st.style.display='none';
+if(json.logs.length===0){
+st.textContent='No activity logged yet. Share a race to see entries here.';
+st.style.display='block';
+return;
+}
+json.logs.forEach(function(log){
+el.appendChild(buildLogEntry(log));
+});
+})
+.catch(function(err){
+st.textContent=err.message;st.className='status error';
+});
+}
+
+function buildLogEntry(log){
+var div=document.createElement('div');
+div.className='log-entry';
+
+var isCompare=log.action&&log.action.indexOf('compare')!==-1;
+var actionLabel=isCompare?'Compare':'Race';
+var actionClass=isCompare?'compare':'race';
+
+var time=log.time||new Date(log.timestamp).toISOString();
+var localTime=new Date(log.timestamp).toLocaleString();
+
+var row='<div class="log-row">';
+row+='<span class="log-time" title="'+time+'">'+localTime+'</span>';
+row+='<span class="log-action '+actionClass+'">'+actionLabel+'</span>';
+row+='<span class="log-id">'+( log.id||'?')+'</span>';
+row+='<span class="log-app">'+(log.app||'roxtrack')+'</span>';
+var meta=[];
+if(log.country&&log.country!=='??')meta.push(log.country);
+if(log.laps)meta.push(log.laps+' laps');
+if(log.totalTime)meta.push(fmtSec(log.totalTime));
+if(log.payloadSize)meta.push((log.payloadSize/1024).toFixed(1)+'KB');
+row+='<span class="log-meta">'+meta.join(' · ')+'</span>';
+row+='</div>';
+
+row+='<div class="log-detail">';
+row+='<div class="log-json">'+JSON.stringify(log,null,2)+'</div>';
+if(log.url){
+row+='<div style="margin-top:8px"><a href="'+log.url+'" target="_blank">Open result page →</a></div>';
+}
+row+='</div>';
+
+div.innerHTML=row;
+div.addEventListener('click',function(){div.classList.toggle('expanded');});
+return div;
+}
+
+function fmtSec(sec){
+if(!sec||sec<0)return'0:00';
+var h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;
+if(h>0)return h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+return m+':'+String(s).padStart(2,'0');
+}
+
+// ── Lookup ──────────────────────────────────────────────────────────
+function doLookup(){
+var id=document.getElementById('lookupId').value.trim();
+if(!id){alert('Enter an ID');return;}
+var el=document.getElementById('lookupResult');
+el.innerHTML='<div class="status">Looking up '+id+'...</div>';
+
+fetch(apiUrl('/admin/lookup/'+encodeURIComponent(id)))
+.then(function(r){
+if(r.status===401){throw new Error('Invalid token');}
+if(r.status===404){throw new Error('ID "'+id+'" not found in race: or comp: keys');}
+if(!r.ok){throw new Error('API error '+r.status);}
+return r.json();
+})
+.then(function(json){
+if(!json.success){throw new Error('Bad response');}
+var html='<div class="lookup-result">';
+html+='<h3>'+json.type.toUpperCase()+': '+json.id+'</h3>';
+html+='<div style="margin-bottom:8px;font-size:12px;color:var(--muted)">';
+html+='App: '+(json.record.app||'roxtrack')+' · Created: '+new Date((json.record.created||0)*1000).toLocaleString();
+html+='</div>';
+
+// Show the data nicely
+var d=json.record.data;
+if(json.type==='race'){
+html+='<div style="margin-bottom:8px">';
+html+='Total: <strong>'+fmtSec(d.t)+'</strong> · ';
+html+='Run: '+fmtSec(d.r)+' · Station: '+fmtSec(d.s);
+if(d.z)html+=' · RoxZone: '+fmtSec(d.z);
+html+=' · '+( d.p||100)+'%';
+html+='</div>';
+if(d.l){
+var laps=d.l.split('|');
+html+='<div style="font-size:12px;color:var(--muted);margin-bottom:4px">'+laps.length+' segments:</div>';
+html+='<div class="log-json">';
+laps.forEach(function(lap,i){
+var f=lap.split('^');
+html+=(i+1)+'. '+decodeURIComponent(f[0]||'')+' — '+fmtSec(parseInt(f[1])||0);
+var tp=parseInt(f[3]);
+if(tp===0)html+=' [RUN, '+( f[4]||0)+'m]';
+else if(tp===1)html+=' [ROXZONE]';
+else html+=' [STATION]';
+html+='\n';
+});
+html+='</div>';
+}
+}
+
+// Results page link
+var baseUrl=json.record.app==='dekatrack'
+?'https://jmferdin-spec.github.io/dekatrack/'
+:'https://jmferdin-spec.github.io/roxtrack/';
+var page=json.type==='compare'?'compare.html':'results.html';
+html+='<div style="margin-top:10px"><a href="'+baseUrl+page+'#'+json.id+'" target="_blank">Open result page →</a></div>';
+
+// Raw JSON
+html+='<details style="margin-top:10px"><summary style="font-size:11px;color:var(--dim);cursor:pointer">Raw JSON</summary>';
+html+='<div class="log-json" style="margin-top:6px">'+JSON.stringify(json.record,null,2)+'</div>';
+html+='</details>';
+
+html+='</div>';
+el.innerHTML=html;
+})
+.catch(function(err){
+el.innerHTML='<div class="status error">'+err.message+'</div>';
+});
+}
+
+// ── Stats ───────────────────────────────────────────────────────────
+function loadStats(){
+var el=document.getElementById('statsContent');
+fetch(apiUrl('/admin/stats'))
+.then(function(r){
+if(r.status===401)return null;
+if(!r.ok)return null;
+return r.json();
+})
+.then(function(json){
+if(!json||!json.success)return;
+var s=json.stats;
+el.innerHTML='<div class="stats-grid">'
++'<div class="stat-card"><div class="lbl">Races Shared</div><div class="val">'+s.totalRaces+'</div></div>'
++'<div class="stat-card"><div class="lbl">Comparisons</div><div class="val">'+s.totalComparisons+'</div></div>'
++'<div class="stat-card"><div class="lbl">Log Entries (7d)</div><div class="val">'+s.recentLogs+'</div></div>'
++'</div>';
+});
+}
+</script>
+</body>
+</html>
