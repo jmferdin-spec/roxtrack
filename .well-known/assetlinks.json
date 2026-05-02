@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.trackhub.trackhub",
+      "sha256_cert_fingerprints": [
+        "F9:C6:8A:98:2A:75:C0:EC:5C:06:5E:ED:E3:68:04:98:21:E5:B0:74:F0:C9:D2:72:5A:34:FB:F2:E8:2D:F5:C7"
+      ]
+    }
+  }
+]
