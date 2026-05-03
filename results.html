@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RoxTrack Results</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -40,11 +41,25 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .lap-pace{color:var(--muted)}
 .lap-dist{color:var(--muted)}
 .lap-cumul{color:var(--dim);font-size:15px}
-.actions{display:flex;gap:8px;margin-top:28px}
+.actions{display:flex;gap:8px;margin-top:28px;flex-wrap:wrap}
 .btn{flex:1;padding:14px;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:center;transition:transform .12s}
 .btn:active{transform:scale(0.97)}
 .btn-primary{background:var(--accent);color:#000}
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-trackion{flex:1 1 100%;background:linear-gradient(135deg,#1a1a2e,#16213e);color:var(--text);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.btn-trackion:hover{border-color:#ffd84d}
+.btn-trackion svg{width:22px;height:22px;flex-shrink:0}
+.qr-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
+.qr-overlay.open{opacity:1;visibility:visible}
+.qr-modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px 28px;text-align:center;max-width:340px;width:90%;position:relative}
+.qr-modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1}
+.qr-modal-close:hover{color:var(--text)}
+.qr-modal-icon{margin-bottom:12px}
+.qr-modal-icon svg{width:40px;height:40px}
+.qr-modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);letter-spacing:2px;margin-bottom:4px}
+.qr-modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.qr-box{display:inline-block;padding:14px;background:#fff;border-radius:12px;margin:0 auto}
+.qr-modal-hint{font-size:11px;color:var(--dim);margin-top:16px}
 .race-date{text-align:center;color:var(--muted);font-size:13px;letter-spacing:1px;margin-bottom:20px}
 .race-date span{color:var(--text);font-weight:600}
 .empty{text-align:center;padding:80px 20px;color:var(--muted)}
@@ -71,7 +86,40 @@ body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adj
 <div class="subtitle">Race Results</div>
 <div id="content"></div>
 </div>
+
+<!-- QR Modal Overlay -->
+<div class="qr-overlay" id="qrOverlay" onclick="closeQr(event)">
+<div class="qr-modal" onclick="event.stopPropagation()">
+<button class="qr-modal-close" onclick="closeQr()">&times;</button>
+<div class="qr-modal-icon">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<circle cx="50" cy="50" r="46" fill="none" stroke-width="5">
+<linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" stop-color="#00b4d8"/>
+<stop offset="50%" stop-color="#22c55e"/>
+<stop offset="100%" stop-color="#f5c518"/>
+</linearGradient>
+</circle>
+<circle cx="50" cy="50" r="46" fill="none" stroke="url(#tg)" stroke-width="5" stroke-linecap="round" stroke-dasharray="240 50"/>
+<text x="50" y="60" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="38" fill="#e8e8e8" letter-spacing="2">T</text>
+</svg>
+</div>
+<div class="qr-modal-title">OPEN IN TRACKION</div>
+<div class="qr-modal-sub">Scan with your phone to import this race</div>
+<div class="qr-box" id="qrCode"></div>
+<div class="qr-modal-hint">Point your camera or use Trackion's QR scanner</div>
+</div>
+</div>
+
 <script>
+var trackionIconSvg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
++ '<defs><linearGradient id="tg2" x1="0%" y1="0%" x2="100%" y2="100%">'
++ '<stop offset="0%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#22c55e"/><stop offset="100%" stop-color="#f5c518"/>'
++ '</linearGradient></defs>'
++ '<circle cx="50" cy="50" r="46" fill="none" stroke="url(#tg2)" stroke-width="5" stroke-linecap="round" stroke-dasharray="240 50"/>'
++ '<text x="50" y="60" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="38" fill="#e8e8e8" letter-spacing="2">T</text>'
++ '</svg>';
+
 function fmt(sec) {
     if (sec < 0) sec = 0;
     var h = Math.floor(sec / 3600);
@@ -82,7 +130,7 @@ function fmt(sec) {
 }
 
 function fmtPace(sec, distM) {
-    if (!distM || distM < 10) return '\u2014';
+    if (!distM || distM < 10) return '—';
     var pacePerKm = sec / (distM / 1000);
     var pm = Math.floor(pacePerKm / 60);
     var ps = Math.round(pacePerKm % 60);
@@ -117,7 +165,7 @@ function init() {
 
     // New path: fetch from API by ID
     if (id) {
-        el.innerHTML = '<div class="empty"><p>Loading results\u2026</p></div>';
+        el.innerHTML = '<div class="empty"><p>Loading results…</p></div>';
         fetch(API_BASE + '/result/' + encodeURIComponent(id))
             .then(function(res) {
                 if (!res.ok) throw new Error('Race not found');
@@ -192,7 +240,7 @@ function renderRace(d, el) {
         var laps = lapsStr.split('|');
         html += '<div class="section-hdr">Lap Breakdown</div>';
         html += '<table class="lap-table"><thead><tr>';
-        html += '<th>Segment</th><th>Time</th><th>Cumul.</th><th>\u2665 Avg</th><th>Pace</th><th>Dist</th>';
+        html += '<th>Segment</th><th>Time</th><th>Cumul.</th><th>♥ Avg</th><th>Pace</th><th>Dist</th>';
         html += '</tr></thead><tbody>';
 
         var cumul = 0;
@@ -208,14 +256,14 @@ function renderRace(d, el) {
 
             var cls = (tp === 0) ? 'run' : (tp === 1) ? 'roxzone' : 'station';
             var isRun = (tp === 0);
-            var pace = isRun ? fmtPace(dur, dist) : '\u2014';
-            var distStr = (isRun && dist > 0) ? (dist + 'm') : '\u2014';
+            var pace = isRun ? fmtPace(dur, dist) : '—';
+            var distStr = (isRun && dist > 0) ? (dist + 'm') : '—';
 
             html += '<tr>';
             html += '<td><span class="lap-name ' + cls + '">' + name + '</span></td>';
             html += '<td>' + fmt(dur) + '</td>';
             html += '<td class="lap-cumul">' + fmt(cumul) + '</td>';
-            html += '<td class="lap-hr">' + (hr > 0 ? hr : '\u2014') + '</td>';
+            html += '<td class="lap-hr">' + (hr > 0 ? hr : '—') + '</td>';
             html += '<td class="lap-pace">' + pace + '</td>';
             html += '<td class="lap-dist">' + distStr + '</td>';
             html += '</tr>';
@@ -226,6 +274,7 @@ function renderRace(d, el) {
     html += '<div class="actions">';
     html += '<button class="btn btn-primary" onclick="window.print()">Save as PDF</button>';
     html += '<button class="btn btn-secondary" onclick="doShare()">Share</button>';
+    html += '<button class="btn btn-trackion" onclick="openQr()">' + trackionIconSvg + ' Open in Trackion</button>';
     html += '</div>';
 
     el.innerHTML = html;
@@ -238,6 +287,29 @@ function doShare() {
         navigator.clipboard.writeText(window.location.href);
         alert('Link copied to clipboard');
     }
+}
+
+var qrGenerated = false;
+function openQr() {
+    var overlay = document.getElementById('qrOverlay');
+    overlay.classList.add('open');
+    if (!qrGenerated) {
+        var container = document.getElementById('qrCode');
+        new QRCode(container, {
+            text: window.location.href,
+            width: 200,
+            height: 200,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+        });
+        qrGenerated = true;
+    }
+}
+
+function closeQr(e) {
+    if (e && e.target && e.target !== document.getElementById('qrOverlay')) return;
+    document.getElementById('qrOverlay').classList.remove('open');
 }
 
 init();
