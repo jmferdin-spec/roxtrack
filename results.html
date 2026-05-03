@@ -48,14 +48,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 .btn-trackion{flex:1 1 100%;background:linear-gradient(135deg,#1a1a2e,#16213e);color:var(--text);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
 .btn-trackion:hover{border-color:#ffd84d}
-.btn-trackion svg{width:22px;height:22px;flex-shrink:0}
+.btn-trackion img{width:22px;height:22px;flex-shrink:0;border-radius:50%}
 .qr-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
 .qr-overlay.open{opacity:1;visibility:visible}
 .qr-modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px 28px;text-align:center;max-width:340px;width:90%;position:relative}
 .qr-modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1}
 .qr-modal-close:hover{color:var(--text)}
 .qr-modal-icon{margin-bottom:12px}
-.qr-modal-icon svg{width:40px;height:40px}
+.qr-modal-icon img{width:40px;height:40px;border-radius:50%}
 .qr-modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);letter-spacing:2px;margin-bottom:4px}
 .qr-modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
 .qr-box{display:inline-block;padding:14px;background:#fff;border-radius:12px;margin:0 auto}
@@ -92,17 +92,7 @@ body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adj
 <div class="qr-modal" onclick="event.stopPropagation()">
 <button class="qr-modal-close" onclick="closeQr()">&times;</button>
 <div class="qr-modal-icon">
-<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-<circle cx="50" cy="50" r="46" fill="none" stroke-width="5">
-<linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="100%">
-<stop offset="0%" stop-color="#00b4d8"/>
-<stop offset="50%" stop-color="#22c55e"/>
-<stop offset="100%" stop-color="#f5c518"/>
-</linearGradient>
-</circle>
-<circle cx="50" cy="50" r="46" fill="none" stroke="url(#tg)" stroke-width="5" stroke-linecap="round" stroke-dasharray="240 50"/>
-<text x="50" y="60" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="38" fill="#e8e8e8" letter-spacing="2">T</text>
-</svg>
+<img src="trackion_icon.png" alt="Trackion">
 </div>
 <div class="qr-modal-title">OPEN IN TRACKION</div>
 <div class="qr-modal-sub">Scan with your phone to import this race</div>
@@ -112,13 +102,7 @@ body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adj
 </div>
 
 <script>
-var trackionIconSvg = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
-+ '<defs><linearGradient id="tg2" x1="0%" y1="0%" x2="100%" y2="100%">'
-+ '<stop offset="0%" stop-color="#00b4d8"/><stop offset="50%" stop-color="#22c55e"/><stop offset="100%" stop-color="#f5c518"/>'
-+ '</linearGradient></defs>'
-+ '<circle cx="50" cy="50" r="46" fill="none" stroke="url(#tg2)" stroke-width="5" stroke-linecap="round" stroke-dasharray="240 50"/>'
-+ '<text x="50" y="60" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="38" fill="#e8e8e8" letter-spacing="2">T</text>'
-+ '</svg>';
+var trackionIconHtml = '<img src="trackion_icon.png" alt="Trackion">';
 
 function fmt(sec) {
     if (sec < 0) sec = 0;
@@ -274,7 +258,7 @@ function renderRace(d, el) {
     html += '<div class="actions">';
     html += '<button class="btn btn-primary" onclick="window.print()">Save as PDF</button>';
     html += '<button class="btn btn-secondary" onclick="doShare()">Share</button>';
-    html += '<button class="btn btn-trackion" onclick="openQr()">' + trackionIconSvg + ' Open in Trackion</button>';
+    html += '<button class="btn btn-trackion" onclick="openQr()">' + trackionIconHtml + ' Open in Trackion</button>';
     html += '</div>';
 
     el.innerHTML = html;
