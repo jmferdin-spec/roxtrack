@@ -5,105 +5,112 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RoxTrack Results</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
---bg:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;
---text:#e8e8e8;--muted:#888;--dim:#555;
---accent:#f5c518;
---run:#22c55e;--station:#f97316;--roxzone:#eab308;
---hr-red:#ef4444;--border:#2a2a2a;
+--bg:#050505;--surface:#111113;--surface2:#1a1a1e;--surface3:#222226;
+--text:#f0f0f0;--muted:#8a8a95;--dim:#55555f;
+--accent:#f5c518;--accent-dim:rgba(245,197,24,0.12);
+--run:#22c55e;--run-dim:rgba(34,197,94,0.10);
+--station:#f97316;--station-dim:rgba(249,115,22,0.10);
+--roxzone:#eab308;--roxzone-dim:rgba(234,179,8,0.10);
+--hr-red:#ef4444;--border:#1e1e24;--border-light:#2a2a32;
+--pace:#60a5fa;
 }
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
-.page{max-width:560px;margin:0 auto;padding:24px 16px 60px}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:3px;color:var(--accent);text-align:center}
-.subtitle{text-align:center;color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
-.total-block{text-align:center;margin-bottom:24px;padding:24px 16px;background:var(--surface);border-radius:14px;border:1px solid var(--border)}
-.total-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px}
-.total-time{font-family:'Bebas Neue',sans-serif;font-size:68px;color:var(--accent);line-height:1;letter-spacing:2px}
-.total-pct{font-size:12px;color:var(--dim);margin-top:6px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px}
-.stat{background:var(--surface);border-radius:10px;padding:14px;border:1px solid var(--border)}
-.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-.stat-value{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px}
-.c-run{color:var(--run)}.c-station{color:var(--station)}.c-roxzone{color:var(--roxzone)}.c-warmup{color:var(--muted)}
-.section-hdr{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-.lap-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px}
-.lap-table th{text-align:left;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;padding:6px 6px 10px;border-bottom:1px solid var(--border);font-weight:500}
+.page{max-width:540px;margin:0 auto;padding:32px 16px 72px;animation:fadeUp .5s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Header ─────────────────────────────────────── */
+.header{text-align:center;margin-bottom:32px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:4px;color:var(--accent);display:inline-block;position:relative}
+.logo::after{content:'';position:absolute;bottom:-4px;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.4}
+.subtitle{color:var(--muted);font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-top:10px}
+.race-date{color:var(--muted);font-size:13px;letter-spacing:0.5px;margin-top:12px}
+.race-date span{color:var(--text);font-weight:600}
+
+/* ── Total block ────────────────────────────────── */
+.total-block{text-align:center;margin-bottom:20px;padding:28px 16px 24px;background:linear-gradient(145deg,var(--surface),var(--surface2));border-radius:16px;border:1px solid var(--border-light);position:relative;overflow:hidden}
+.total-block::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+.total-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:3px;margin-bottom:8px}
+.total-time{font-family:'Bebas Neue',sans-serif;font-size:72px;color:var(--accent);line-height:1;letter-spacing:3px;text-shadow:0 0 40px rgba(245,197,24,0.15)}
+.total-pct{font-size:12px;color:var(--dim);margin-top:8px}
+
+/* ── Stat cards ─────────────────────────────────── */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.stat{background:var(--surface);border-radius:12px;padding:16px;border:1px solid var(--border);position:relative;overflow:hidden;transition:border-color .2s}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:.6}
+.stat.s-warmup::before{background:var(--muted)}
+.stat.s-run::before{background:var(--run)}
+.stat.s-station::before{background:var(--station)}
+.stat.s-roxzone::before{background:var(--roxzone)}
+.stat.s-pace::before{background:var(--pace)}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.stat-value{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px}
+.c-run{color:var(--run)}.c-station{color:var(--station)}.c-roxzone{color:var(--roxzone)}.c-warmup{color:var(--muted)}.c-pace{color:var(--pace)}
+
+/* ── Lap table ──────────────────────────────────── */
+.section-hdr{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:3px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.lap-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:28px}
+.lap-table th{text-align:left;font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;padding:8px 6px 12px;border-bottom:1px solid var(--border-light);font-weight:500}
 .lap-table th:not(:first-child){text-align:right}
-.lap-table td{padding:10px 6px;border-bottom:1px solid var(--border);vertical-align:middle}
+.lap-table td{padding:12px 6px;border-bottom:1px solid var(--border);vertical-align:middle}
 .lap-table td:not(:first-child){text-align:right;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.5px}
 .lap-table tr:last-child td{border-bottom:none}
+.lap-table tr:hover td{background:var(--surface)}
 .lap-name{font-weight:600;font-size:14px}
 .lap-name.run{color:var(--run)}.lap-name.station{color:var(--station)}.lap-name.roxzone{color:var(--roxzone)}
 .lap-hr{color:var(--hr-red)}
-.lap-pace{color:var(--muted)}
-.lap-dist{color:var(--muted)}
+.lap-pace{color:var(--pace)}
+.lap-dist{color:var(--dim)}
 .lap-cumul{color:var(--dim);font-size:15px}
-.actions{display:flex;gap:8px;margin-top:28px;flex-wrap:wrap}
-.btn{flex:1;padding:14px;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:center;transition:transform .12s}
+
+/* ── Buttons ────────────────────────────────────── */
+.actions{display:flex;gap:10px;margin-top:32px}
+.btn{flex:1;padding:15px;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s ease}
 .btn:active{transform:scale(0.97)}
-.btn-primary{background:var(--accent);color:#000}
-.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
-.btn-trackion{flex:1 1 100%;background:linear-gradient(135deg,#1a1a2e,#16213e);color:var(--text);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
-.btn-trackion:hover{border-color:#ffd84d}
-.btn-trackion img{width:22px;height:22px;flex-shrink:0;border-radius:50%}
-.qr-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s}
-.qr-overlay.open{opacity:1;visibility:visible}
-.qr-modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px 28px;text-align:center;max-width:340px;width:90%;position:relative}
-.qr-modal-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;padding:4px 8px;line-height:1}
-.qr-modal-close:hover{color:var(--text)}
-.qr-modal-icon{margin-bottom:12px}
-.qr-modal-icon img{width:40px;height:40px;border-radius:50%}
-.qr-modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);letter-spacing:2px;margin-bottom:4px}
-.qr-modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
-.qr-box{display:inline-block;padding:14px;background:#fff;border-radius:12px;margin:0 auto}
-.qr-modal-hint{font-size:11px;color:var(--dim);margin-top:16px}
-.race-date{text-align:center;color:var(--muted);font-size:13px;letter-spacing:1px;margin-bottom:20px}
-.race-date span{color:var(--text);font-weight:600}
+.btn-primary{background:var(--accent);color:#000;box-shadow:0 4px 20px rgba(245,197,24,0.2)}
+.btn-primary:hover{box-shadow:0 4px 28px rgba(245,197,24,0.3)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border-light)}
+.btn-secondary:hover{border-color:var(--dim)}
+
+/* ── Footer ─────────────────────────────────────── */
+.footer{text-align:center;margin-top:36px;padding-top:20px;border-top:1px solid var(--border)}
+.footer-text{font-size:11px;color:var(--dim);letter-spacing:1px}
+
+/* ── Empty / Error ──────────────────────────────── */
 .empty{text-align:center;padding:80px 20px;color:var(--muted)}
 .empty h2{color:var(--text);margin-bottom:12px;font-size:20px}
+
+/* ── Print ──────────────────────────────────────── */
 @media print{
 body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .page{padding:8px;max-width:100%}
-.actions{display:none!important}
-.total-block,.stat{border-color:#ccc;background:#f5f5f5}
-.total-time{color:#b8960f}
+.actions,.footer{display:none!important}
+.total-block,.stat{border-color:#ddd;background:#f8f8f8}
+.total-block::before,.stat::before{display:none}
+.total-time{color:#b8960f;text-shadow:none}
 .lap-table th{color:#666;border-color:#ccc}
 .lap-table td{border-color:#e0e0e0}
+.lap-table tr:hover td{background:transparent}
 .c-run,.lap-name.run{color:#16a34a}.c-station,.lap-name.station{color:#c2410c}
 .c-roxzone,.lap-name.roxzone{color:#a16207}
+.c-pace,.lap-pace{color:#2563eb}
 .lap-hr{color:#b91c1c}
 .section-hdr{color:#666;border-color:#ccc}
-.logo{color:#b8960f}
+.logo{color:#b8960f}.logo::after{display:none}
 }
 </style>
 </head>
 <body>
 <div class="page" id="page">
-<div class="logo">ROXTRACK</div>
-<div class="subtitle">Race Results</div>
+<div class="header">
+    <div class="logo">ROXTRACK</div>
+    <div class="subtitle">Race Results</div>
+</div>
 <div id="content"></div>
 </div>
-
-<!-- QR Modal Overlay -->
-<div class="qr-overlay" id="qrOverlay" onclick="closeQr(event)">
-<div class="qr-modal" onclick="event.stopPropagation()">
-<button class="qr-modal-close" onclick="closeQr()">&times;</button>
-<div class="qr-modal-icon">
-<img src="trackion_icon.png" alt="Trackion">
-</div>
-<div class="qr-modal-title">OPEN IN TRACKION</div>
-<div class="qr-modal-sub">Scan with your phone to import this race</div>
-<div class="qr-box" id="qrCode"></div>
-<div class="qr-modal-hint">Point your camera or use Trackion's QR scanner</div>
-</div>
-</div>
-
 <script>
-var trackionIconHtml = '<img src="trackion_icon.png" alt="Trackion">';
-
 function fmt(sec) {
     if (sec < 0) sec = 0;
     var h = Math.floor(sec / 3600);
@@ -199,6 +206,21 @@ function renderRace(d, el) {
     var lapsStr = d.l || '';
     var dt = d.dt || 0;
 
+    // ── Compute avg run pace from lap data ──────────────────────
+    var totalRunSec = 0;
+    var totalRunDist = 0;
+    if (lapsStr) {
+        var rawLaps = lapsStr.split('|');
+        for (var ri = 0; ri < rawLaps.length; ri++) {
+            var rp = rawLaps[ri].split('^');
+            var rpType = parseInt(rp[3]);
+            if (rpType === 0) {  // SEG_RUN
+                totalRunSec  += parseInt(rp[1]) || 0;
+                totalRunDist += parseInt(rp[4]) || 0;
+            }
+        }
+    }
+
     var html = '';
 
     // Date/time line
@@ -214,10 +236,18 @@ function renderRace(d, el) {
     html += '</div>';
 
     html += '<div class="stats">';
-    html += '<div class="stat"><div class="stat-label">Warm Up</div><div class="stat-value c-warmup">' + fmt(w) + '</div></div>';
-    html += '<div class="stat"><div class="stat-label">Total Run</div><div class="stat-value c-run">' + fmt(r) + '</div></div>';
-    html += '<div class="stat"><div class="stat-label">Total Station</div><div class="stat-value c-station">' + fmt(s) + '</div></div>';
-    if (rz) html += '<div class="stat"><div class="stat-label">RoxZone</div><div class="stat-value c-roxzone">' + fmt(z) + '</div></div>';
+    html += '<div class="stat s-warmup"><div class="stat-label">Warm Up</div><div class="stat-value c-warmup">' + fmt(w) + '</div></div>';
+    html += '<div class="stat s-run"><div class="stat-label">Total Run</div><div class="stat-value c-run">' + fmt(r) + '</div></div>';
+    html += '<div class="stat s-station"><div class="stat-label">Total Station</div><div class="stat-value c-station">' + fmt(s) + '</div></div>';
+
+    // Avg Run Pace card
+    var avgPaceStr = '—';
+    if (totalRunDist > 10) {
+        avgPaceStr = fmtPace(totalRunSec, totalRunDist);
+    }
+    html += '<div class="stat s-pace"><div class="stat-label">Avg Run Pace</div><div class="stat-value c-pace">' + avgPaceStr + '</div></div>';
+
+    if (rz) html += '<div class="stat s-roxzone"><div class="stat-label">RoxZone</div><div class="stat-value c-roxzone">' + fmt(z) + '</div></div>';
     html += '</div>';
 
     if (lapsStr) {
@@ -258,8 +288,9 @@ function renderRace(d, el) {
     html += '<div class="actions">';
     html += '<button class="btn btn-primary" onclick="window.print()">Save as PDF</button>';
     html += '<button class="btn btn-secondary" onclick="doShare()">Share</button>';
-    html += '<button class="btn btn-trackion" onclick="openQr()">' + trackionIconHtml + ' Open in Trackion</button>';
     html += '</div>';
+
+    html += '<div class="footer"><div class="footer-text">ROXTRACK</div></div>';
 
     el.innerHTML = html;
 }
@@ -271,29 +302,6 @@ function doShare() {
         navigator.clipboard.writeText(window.location.href);
         alert('Link copied to clipboard');
     }
-}
-
-var qrGenerated = false;
-function openQr() {
-    var overlay = document.getElementById('qrOverlay');
-    overlay.classList.add('open');
-    if (!qrGenerated) {
-        var container = document.getElementById('qrCode');
-        new QRCode(container, {
-            text: window.location.href,
-            width: 200,
-            height: 200,
-            colorDark: '#000000',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.M
-        });
-        qrGenerated = true;
-    }
-}
-
-function closeQr(e) {
-    if (e && e.target && e.target !== document.getElementById('qrOverlay')) return;
-    document.getElementById('qrOverlay').classList.remove('open');
 }
 
 init();
