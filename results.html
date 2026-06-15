@@ -494,11 +494,11 @@ function generateShareImage(mode) {
         ctx.letterSpacing = '6px';
         drawCenter('TOTAL RACE TIME', centerY, '500 26px sans-serif', COL_MUTED);
         ctx.letterSpacing = '0px';
-        centerY += 80;
+        centerY += 140;
 
         // Big time
         drawCenter(shareData.total, centerY, '800 140px sans-serif', COL_GOLD);
-        centerY += 24;
+        centerY += 40;
 
         // Distance pct
         if (shareData.pct !== 100) {
@@ -559,10 +559,10 @@ function generateShareImage(mode) {
         ctx.letterSpacing = '0px';
 
         // Big time
-        drawCenter(shareData.total, sqCenterY + 80, '800 150px sans-serif', COL_GOLD);
+        drawCenter(shareData.total, sqCenterY + 130, '800 150px sans-serif', COL_GOLD);
 
         // Distance pct
-        var afterTime = sqCenterY + 100;
+        var afterTime = sqCenterY + 150;
         if (shareData.pct !== 100) {
             afterTime += 20;
             drawCenter(shareData.pct + '% Distance', afterTime, '400 24px sans-serif', COL_DIM);
