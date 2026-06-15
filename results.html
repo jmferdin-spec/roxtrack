@@ -82,11 +82,30 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .empty{text-align:center;padding:80px 20px;color:var(--muted)}
 .empty h2{color:var(--text);margin-bottom:12px;font-size:20px}
 
+/* ── Share Image Modal ─────────────────────────── */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--surface2);border-radius:16px;border:1px solid var(--border-light);padding:28px 24px;max-width:360px;width:90%;animation:fadeUp .3s ease}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);letter-spacing:2px;text-align:center;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted);text-align:center;margin-bottom:20px}
+.modal-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.modal-input{width:100%;padding:12px 14px;background:var(--surface);border:1px solid var(--border-light);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.modal-input:focus{border-color:var(--accent)}
+.modal-input::placeholder{color:var(--dim)}
+.modal-buttons{display:flex;gap:10px;margin-top:20px}
+.modal-btn{flex:1;padding:14px 8px;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s ease}
+.modal-btn:active{transform:scale(0.97)}
+.modal-btn-story{background:var(--accent);color:#000}
+.modal-btn-post{background:var(--surface);color:var(--text);border:1px solid var(--border-light)}
+.modal-btn-post:hover{border-color:var(--dim)}
+.modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px}
+.modal-close:hover{color:var(--text)}
+
 /* ── Print ──────────────────────────────────────── */
 @media print{
 body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .page{padding:8px;max-width:100%}
-.actions,.footer{display:none!important}
+.actions,.footer,.modal-overlay{display:none!important}
 .total-block,.stat{border-color:#ddd;background:#f8f8f8}
 .total-block::before,.stat::before{display:none}
 .total-time{color:#b8960f;text-shadow:none}
@@ -110,6 +129,23 @@ body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adj
 </div>
 <div id="content"></div>
 </div>
+
+<!-- Share Image Modal -->
+<div class="modal-overlay" id="shareModal" onclick="if(event.target===this)closeShareModal()">
+<div class="modal" style="position:relative">
+<button class="modal-close" onclick="closeShareModal()">&times;</button>
+<div class="modal-title">Share Image</div>
+<div class="modal-sub">Download a shareable card for Instagram</div>
+<div class="modal-label">Race Name (optional)</div>
+<input type="text" class="modal-input" id="raceNameInput" placeholder="e.g. Houston HYROX Open" maxlength="40">
+<div class="modal-buttons">
+<button class="modal-btn modal-btn-story" onclick="generateShareImage('story')">Story 9:16</button>
+<button class="modal-btn modal-btn-post" onclick="generateShareImage('post')">Post 1:1</button>
+</div>
+</div>
+</div>
+
+<canvas id="shareCanvas" style="display:none"></canvas>
 <script>
 function fmt(sec) {
     if (sec < 0) sec = 0;
@@ -145,6 +181,7 @@ function fmtDate(unixSec) {
 }
 
 var API_BASE = 'https://roxtrack-api.jmferdin.workers.dev';
+var shareData = null;  // populated by renderRace for share image
 
 function init() {
     var p = new URLSearchParams(window.location.search);
@@ -289,10 +326,37 @@ function renderRace(d, el) {
     html += '<button class="btn btn-primary" onclick="window.print()">Save as PDF</button>';
     html += '<button class="btn btn-secondary" onclick="doShare()">Share</button>';
     html += '</div>';
+    html += '<div class="actions">';
+    html += '<button class="btn btn-secondary" onclick="openShareModal()" style="border-color:var(--accent);color:var(--accent)">Share Image</button>';
+    html += '</div>';
 
     html += '<div class="footer"><div class="footer-text">ROXTRACK</div></div>';
 
     el.innerHTML = html;
+
+    // Store data for share image generation
+    shareData = {
+        total: fmt(t),
+        warmup: fmt(w),
+        run: fmt(r),
+        station: fmt(s),
+        roxzone: rz ? fmt(z) : null,
+        pct: pct,
+        avgPace: avgPaceStr,
+        date: dateDisplay,
+        avgHr: 0
+    };
+    // Compute avg HR from laps
+    if (lapsStr) {
+        var hrSum = 0, hrCount = 0;
+        var hrLaps = lapsStr.split('|');
+        for (var hi = 0; hi < hrLaps.length; hi++) {
+            var hp = hrLaps[hi].split('^');
+            var hv = parseInt(hp[2]) || 0;
+            if (hv > 0) { hrSum += hv; hrCount++; }
+        }
+        if (hrCount > 0) shareData.avgHr = Math.round(hrSum / hrCount);
+    }
 }
 
 function doShare() {
@@ -302,6 +366,241 @@ function doShare() {
         navigator.clipboard.writeText(window.location.href);
         alert('Link copied to clipboard');
     }
+}
+
+// ── Share Image Modal ─────────────────────────────────────────────
+function openShareModal() {
+    document.getElementById('shareModal').classList.add('active');
+    document.getElementById('raceNameInput').focus();
+}
+function closeShareModal() {
+    document.getElementById('shareModal').classList.remove('active');
+}
+
+// ── Canvas Share Image Generator ──────────────────────────────────
+function generateShareImage(mode) {
+    if (!shareData) return;
+    var raceName = document.getElementById('raceNameInput').value.trim();
+    var canvas = document.getElementById('shareCanvas');
+    var isStory = (mode === 'story');
+    var W = 1080;
+    var H = isStory ? 1920 : 1080;
+    canvas.width = W;
+    canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    // ── Colors ──
+    var COL_BG      = '#0a0a0c';
+    var COL_GOLD    = '#f5c518';
+    var COL_WHITE   = '#f0f0f0';
+    var COL_MUTED   = '#888888';
+    var COL_DIM     = '#555555';
+    var COL_SURFACE = 'rgba(255,255,255,0.04)';
+    var COL_BORDER  = 'rgba(255,255,255,0.06)';
+    var COL_RUN     = '#22c55e';
+    var COL_STATION = '#f97316';
+    var COL_PACE    = '#60a5fa';
+    var COL_HR      = '#ef4444';
+
+    // ── Background ──
+    ctx.fillStyle = COL_BG;
+    ctx.fillRect(0, 0, W, H);
+
+    // ── Accent bar (top) ──
+    var grad = ctx.createLinearGradient(0, 0, W, 0);
+    grad.addColorStop(0, COL_GOLD);
+    grad.addColorStop(0.5, '#f97316');
+    grad.addColorStop(1, '#22c55e');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, 6);
+
+    // ── Helper: draw centered text ──
+    function drawCenter(text, y, font, color) {
+        ctx.font = font;
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.fillText(text, W / 2, y);
+    }
+
+    // ── Helper: draw rounded rect ──
+    function roundRect(x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+    }
+
+    // ── Helper: draw stat card ──
+    function drawStatCard(x, y, w, h, label, value, color) {
+        roundRect(x, y, w, h, 12);
+        ctx.fillStyle = COL_SURFACE;
+        ctx.fill();
+        ctx.strokeStyle = COL_BORDER;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.font = '500 22px sans-serif';
+        ctx.fillStyle = COL_MUTED;
+        ctx.textAlign = 'center';
+        ctx.letterSpacing = '3px';
+        ctx.fillText(label.toUpperCase(), x + w / 2, y + 36);
+        ctx.letterSpacing = '0px';
+
+        ctx.font = '800 52px sans-serif';
+        ctx.fillStyle = color;
+        ctx.fillText(value, x + w / 2, y + h - 24);
+    }
+
+    if (isStory) {
+        // ════════════════════════════════════════════════════════
+        //  STORY LAYOUT — 1080 x 1920
+        // ════════════════════════════════════════════════════════
+        var cy = 160;
+
+        // Brand
+        ctx.font = '700 44px sans-serif';
+        ctx.letterSpacing = '12px';
+        drawCenter('ROXTRACK', cy, '700 44px sans-serif', COL_GOLD);
+        ctx.letterSpacing = '0px';
+        cy += 32;
+        ctx.letterSpacing = '6px';
+        drawCenter('RACE RESULTS', cy, '500 22px sans-serif', COL_DIM);
+        ctx.letterSpacing = '0px';
+
+        // Date
+        if (shareData.date) {
+            cy += 48;
+            ctx.letterSpacing = '2px';
+            drawCenter(shareData.date, cy, '400 24px sans-serif', COL_DIM);
+            ctx.letterSpacing = '0px';
+        }
+
+        // Race name
+        if (raceName) {
+            cy += 80;
+            ctx.letterSpacing = '3px';
+            drawCenter(raceName.toUpperCase(), cy, '700 36px sans-serif', COL_WHITE);
+            ctx.letterSpacing = '0px';
+        }
+
+        // Center section
+        var centerY = isStory ? (raceName ? 620 : 560) : 400;
+
+        // "Total Race Time" label
+        ctx.letterSpacing = '6px';
+        drawCenter('TOTAL RACE TIME', centerY, '500 26px sans-serif', COL_MUTED);
+        ctx.letterSpacing = '0px';
+        centerY += 80;
+
+        // Big time
+        drawCenter(shareData.total, centerY, '800 140px sans-serif', COL_GOLD);
+        centerY += 24;
+
+        // Distance pct
+        if (shareData.pct !== 100) {
+            centerY += 30;
+            drawCenter(shareData.pct + '% Distance', centerY, '400 24px sans-serif', COL_DIM);
+        }
+
+        // Stat cards — 2x2 grid
+        var cardW = 430;
+        var cardH = 120;
+        var cardGap = 24;
+        var gridX = (W - cardW * 2 - cardGap) / 2;
+        var gridY = centerY + 80;
+
+        drawStatCard(gridX, gridY, cardW, cardH, 'Total Run', shareData.run, COL_RUN);
+        drawStatCard(gridX + cardW + cardGap, gridY, cardW, cardH, 'Total Station', shareData.station, COL_STATION);
+        drawStatCard(gridX, gridY + cardH + cardGap, cardW, cardH, 'Avg Run Pace', shareData.avgPace, COL_PACE);
+        drawStatCard(gridX + cardW + cardGap, gridY + cardH + cardGap, cardW, cardH, 'Avg HR', shareData.avgHr > 0 ? String(shareData.avgHr) : '—', COL_HR);
+
+        // Footer
+        ctx.letterSpacing = '8px';
+        drawCenter('ROXTRACK', H - 80, '500 20px sans-serif', '#333333');
+        ctx.letterSpacing = '0px';
+
+    } else {
+        // ════════════════════════════════════════════════════════
+        //  POST LAYOUT — 1080 x 1080
+        // ════════════════════════════════════════════════════════
+
+        // Header row — brand left, date right
+        ctx.font = '700 40px sans-serif';
+        ctx.fillStyle = COL_GOLD;
+        ctx.textAlign = 'left';
+        ctx.letterSpacing = '10px';
+        ctx.fillText('ROXTRACK', 60, 80);
+        ctx.letterSpacing = '0px';
+
+        if (shareData.date) {
+            // Shorten date for square format
+            var shortDate = shareData.date.split('·')[0].trim();
+            ctx.font = '400 24px sans-serif';
+            ctx.fillStyle = COL_DIM;
+            ctx.textAlign = 'right';
+            ctx.fillText(shortDate, W - 60, 80);
+        }
+
+        // Race name
+        var sqCenterY = raceName ? 220 : 200;
+        if (raceName) {
+            ctx.letterSpacing = '3px';
+            drawCenter(raceName.toUpperCase(), 160, '700 34px sans-serif', COL_WHITE);
+            ctx.letterSpacing = '0px';
+        }
+
+        // "Total Race Time" label
+        ctx.letterSpacing = '6px';
+        drawCenter('TOTAL RACE TIME', sqCenterY, '500 24px sans-serif', COL_MUTED);
+        ctx.letterSpacing = '0px';
+
+        // Big time
+        drawCenter(shareData.total, sqCenterY + 80, '800 150px sans-serif', COL_GOLD);
+
+        // Distance pct
+        var afterTime = sqCenterY + 100;
+        if (shareData.pct !== 100) {
+            afterTime += 20;
+            drawCenter(shareData.pct + '% Distance', afterTime, '400 24px sans-serif', COL_DIM);
+        }
+
+        // Stat cards — 2x2 grid
+        var cW = 420;
+        var cH = 110;
+        var cGap = 20;
+        var cX = (W - cW * 2 - cGap) / 2;
+        var cY = raceName ? 540 : 500;
+
+        drawStatCard(cX, cY, cW, cH, 'Total Run', shareData.run, COL_RUN);
+        drawStatCard(cX + cW + cGap, cY, cW, cH, 'Total Station', shareData.station, COL_STATION);
+        drawStatCard(cX, cY + cH + cGap, cW, cH, 'Avg Run Pace', shareData.avgPace, COL_PACE);
+        drawStatCard(cX + cW + cGap, cY + cH + cGap, cW, cH, 'Avg HR', shareData.avgHr > 0 ? String(shareData.avgHr) : '—', COL_HR);
+
+        // Footer
+        ctx.letterSpacing = '8px';
+        drawCenter('ROXTRACK', H - 50, '500 20px sans-serif', '#333333');
+        ctx.letterSpacing = '0px';
+    }
+
+    // ── Download ──
+    canvas.toBlob(function(blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'roxtrack-' + mode + '.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        closeShareModal();
+    }, 'image/png');
 }
 
 init();
