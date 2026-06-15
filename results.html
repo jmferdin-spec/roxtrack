@@ -323,11 +323,8 @@ function renderRace(d, el) {
     }
 
     html += '<div class="actions">';
-    html += '<button class="btn btn-primary" onclick="window.print()">Save as PDF</button>';
+    html += '<button class="btn btn-primary" onclick="openShareModal()">Share Image</button>';
     html += '<button class="btn btn-secondary" onclick="doShare()">Share</button>';
-    html += '</div>';
-    html += '<div class="actions">';
-    html += '<button class="btn btn-secondary" onclick="openShareModal()" style="border-color:var(--accent);color:var(--accent)">Share Image</button>';
     html += '</div>';
 
     html += '<div class="footer"><div class="footer-text">ROXTRACK</div></div>';
