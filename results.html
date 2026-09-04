@@ -707,7 +707,7 @@ function generateSplitsImage(mode, raceName) {
         }
 
         // ── Race name + total time ──
-        var titleY = 160;
+        var titleY = 150;
         if (raceName) {
             ctx.font = '800 56px sans-serif';
             ctx.fillStyle = COL_WHITE;
@@ -715,7 +715,6 @@ function generateSplitsImage(mode, raceName) {
             ctx.letterSpacing = '6px';
             ctx.fillText(raceName.toUpperCase(), mx, titleY);
             ctx.letterSpacing = '0px';
-            titleY += 36;
         } else {
             ctx.font = '800 56px sans-serif';
             ctx.fillStyle = COL_WHITE;
@@ -723,54 +722,52 @@ function generateSplitsImage(mode, raceName) {
             ctx.letterSpacing = '6px';
             ctx.fillText('HYROX', mx, titleY);
             ctx.letterSpacing = '0px';
-            titleY += 36;
         }
 
-        ctx.font = '500 22px sans-serif';
-        ctx.fillStyle = COL_MUTED;
-        ctx.textAlign = 'left';
-        ctx.letterSpacing = '4px';
-        ctx.fillText('RACE RESULT', mx, titleY);
-        ctx.letterSpacing = '0px';
-
         // Big total time
-        titleY += 20;
-        ctx.font = '800 120px sans-serif';
+        ctx.font = '800 130px sans-serif';
         ctx.fillStyle = COL_GOLD;
         ctx.textAlign = 'left';
-        ctx.fillText(shareData.total, mx, titleY + 100);
+        ctx.fillText(shareData.total, mx, titleY + 130);
 
         ctx.font = '500 18px sans-serif';
         ctx.fillStyle = COL_MUTED;
         ctx.letterSpacing = '6px';
-        ctx.fillText('TOTAL TIME', mx, titleY + 128);
+        ctx.fillText('TOTAL TIME', mx, titleY + 158);
         ctx.letterSpacing = '0px';
 
-        // ── Stats on the right side ──
-        var statsX = timeRight;
-        var statsY = titleY + 20;
-        var statsGap = 62;
+        // ── Stat boxes (horizontal strip below total) ──
+        var stripY = titleY + 185;
+        var stripH = 70;
         var statsItems = [
             { val: shareData.run, label: 'RUNS', color: COL_RUN },
             { val: shareData.station, label: 'STATIONS', color: COL_STATION },
             { val: shareData.avgPace, label: 'AVG PACE', color: COL_PACE },
             { val: avgHr > 0 ? String(shareData.avgHr) : '—', label: 'AVG HR', color: COL_HR }
         ];
+        var stripW = timeRight - mx;
+        var boxGap = 8;
+        var boxW = (stripW - boxGap * (statsItems.length - 1)) / statsItems.length;
         for (var sti = 0; sti < statsItems.length; sti++) {
-            var sty = statsY + sti * statsGap;
-            ctx.font = '700 32px sans-serif';
+            var bx = mx + sti * (boxW + boxGap);
+            ctx.fillStyle = 'rgba(255,255,255,0.04)';
+            ctx.fillRect(bx, stripY, boxW, stripH);
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(bx, stripY, boxW, stripH);
+            ctx.font = '700 28px sans-serif';
             ctx.fillStyle = statsItems[sti].color;
-            ctx.textAlign = 'right';
-            ctx.fillText(statsItems[sti].val, statsX, sty);
-            ctx.font = '500 13px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(statsItems[sti].val, bx + boxW / 2, stripY + stripH / 2 + 2);
+            ctx.font = '500 12px sans-serif';
             ctx.fillStyle = COL_DIM;
-            ctx.letterSpacing = '2px';
-            ctx.fillText(statsItems[sti].label, statsX, sty + 18);
+            ctx.letterSpacing = '1px';
+            ctx.fillText(statsItems[sti].label, bx + boxW / 2, stripY + stripH / 2 + 22);
             ctx.letterSpacing = '0px';
         }
 
         // ── Segment list by round ──
-        var listTop = titleY + 170;
+        var listTop = stripY + stripH + 24;
         var listBot = H - 90;
         var totalRows = laps.length;
         var rowH = Math.floor((listBot - listTop) / totalRows);
@@ -868,9 +865,9 @@ function generateSplitsImage(mode, raceName) {
         }
 
         // Race name + total
-        var ty2 = 100;
+        var ty2 = 105;
         if (raceName) {
-            ctx.font = '800 36px sans-serif';
+            ctx.font = '800 34px sans-serif';
             ctx.fillStyle = COL_WHITE;
             ctx.textAlign = 'left';
             ctx.letterSpacing = '4px';
@@ -878,41 +875,48 @@ function generateSplitsImage(mode, raceName) {
             ctx.letterSpacing = '0px';
         }
 
-        ctx.font = '800 72px sans-serif';
+        ctx.font = '800 68px sans-serif';
         ctx.fillStyle = COL_GOLD;
         ctx.textAlign = 'left';
-        ctx.fillText(shareData.total, mx2, ty2 + 72);
-        ctx.font = '500 14px sans-serif';
+        ctx.fillText(shareData.total, mx2, ty2 + 68);
+        ctx.font = '500 13px sans-serif';
         ctx.fillStyle = COL_MUTED;
         ctx.letterSpacing = '4px';
-        ctx.fillText('TOTAL TIME', mx2, ty2 + 92);
+        ctx.fillText('TOTAL TIME', mx2, ty2 + 88);
         ctx.letterSpacing = '0px';
 
-        // ── Stats on the right side ──
-        var statsX2 = timeRight2;
-        var statsY2 = ty2;
-        var statsGap2 = 48;
+        // ── Stat boxes (side by side) ──
+        var strip2Y = ty2 + 108;
+        var strip2H = 55;
         var statsItems2 = [
             { val: shareData.run, label: 'RUNS', color: COL_RUN },
             { val: shareData.station, label: 'STATIONS', color: COL_STATION },
             { val: shareData.avgPace, label: 'AVG PACE', color: COL_PACE },
             { val: avgHr > 0 ? String(shareData.avgHr) : '—', label: 'AVG HR', color: COL_HR }
         ];
+        var strip2W = timeRight2 - mx2;
+        var boxGap2 = 6;
+        var box2W = (strip2W - boxGap2 * (statsItems2.length - 1)) / statsItems2.length;
         for (var sti2 = 0; sti2 < statsItems2.length; sti2++) {
-            var sty2 = statsY2 + sti2 * statsGap2;
-            ctx.font = '700 24px sans-serif';
+            var bx2 = mx2 + sti2 * (box2W + boxGap2);
+            ctx.fillStyle = 'rgba(255,255,255,0.04)';
+            ctx.fillRect(bx2, strip2Y, box2W, strip2H);
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(bx2, strip2Y, box2W, strip2H);
+            ctx.font = '700 22px sans-serif';
             ctx.fillStyle = statsItems2[sti2].color;
-            ctx.textAlign = 'right';
-            ctx.fillText(statsItems2[sti2].val, statsX2, sty2);
-            ctx.font = '500 11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(statsItems2[sti2].val, bx2 + box2W / 2, strip2Y + strip2H / 2 + 1);
+            ctx.font = '500 10px sans-serif';
             ctx.fillStyle = COL_DIM;
-            ctx.letterSpacing = '2px';
-            ctx.fillText(statsItems2[sti2].label, statsX2, sty2 + 15);
+            ctx.letterSpacing = '1px';
+            ctx.fillText(statsItems2[sti2].label, bx2 + box2W / 2, strip2Y + strip2H / 2 + 17);
             ctx.letterSpacing = '0px';
         }
 
         // Segment list
-        var listTop2 = ty2 + 120;
+        var listTop2 = strip2Y + strip2H + 16;
         var listBot2 = H - 50;
         var totalRows2 = laps.length;
         var rowH2 = Math.floor((listBot2 - listTop2) / totalRows2);
