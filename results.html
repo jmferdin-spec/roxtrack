@@ -816,10 +816,12 @@ function generateSplitsImage(mode, raceName) {
             ctx.letterSpacing = '0px';
         }
 
-        // Big total time
+        // Big total time with shadow
         ctx.font = '800 130px sans-serif';
-        ctx.fillStyle = COL_GOLD;
         ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillText(shareData.total, mx + 3, titleY + 133);
+        ctx.fillStyle = COL_WHITE;
         ctx.fillText(shareData.total, mx, titleY + 130);
 
         ctx.font = '500 18px sans-serif';
@@ -987,8 +989,10 @@ function generateSplitsImage(mode, raceName) {
         }
 
         ctx.font = '800 68px sans-serif';
-        ctx.fillStyle = COL_GOLD;
         ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillText(shareData.total, mx2 + 2, ty2 + 70);
+        ctx.fillStyle = COL_WHITE;
         ctx.fillText(shareData.total, mx2, ty2 + 68);
         ctx.font = '500 13px sans-serif';
         ctx.fillStyle = COL_MUTED;
