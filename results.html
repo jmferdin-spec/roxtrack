@@ -903,7 +903,7 @@ function generateSplitsImage(mode, raceName) {
             ctx.textAlign = 'center';
             ctx.fillText(statsItems[sti].val, bx + boxW / 2, stripY + stripH / 2 + 2);
             ctx.font = '500 12px sans-serif';
-            ctx.fillStyle = COL_DIM;
+            ctx.fillStyle = COL_WHITE;
             ctx.letterSpacing = '1px';
             ctx.fillText(statsItems[sti].label, bx + boxW / 2, stripY + stripH / 2 + 22);
             ctx.letterSpacing = '0px';
@@ -919,7 +919,7 @@ function generateSplitsImage(mode, raceName) {
 
             // Round number on the left
             ctx.font = '700 36px sans-serif';
-            ctx.fillStyle = COL_MUTED;
+            ctx.fillStyle = COL_WHITE;
             ctx.textAlign = 'right';
             ctx.fillText(String(ri + 1).padStart(2, '0'), contentLeft - 20, roundMidY + 10);
 
@@ -1072,7 +1072,7 @@ function generateSplitsImage(mode, raceName) {
             ctx.textAlign = 'center';
             ctx.fillText(statsItems2[sti2].val, bx2 + box2W / 2, strip2Y + strip2H / 2 + 1);
             ctx.font = '500 10px sans-serif';
-            ctx.fillStyle = COL_DIM;
+            ctx.fillStyle = COL_WHITE;
             ctx.letterSpacing = '1px';
             ctx.fillText(statsItems2[sti2].label, bx2 + box2W / 2, strip2Y + strip2H / 2 + 17);
             ctx.letterSpacing = '0px';
@@ -1087,7 +1087,7 @@ function generateSplitsImage(mode, raceName) {
             var roundMidY2 = sy2 + (round2.length * rowH2) / 2;
 
             ctx.font = '700 24px sans-serif';
-            ctx.fillStyle = COL_DIM;
+            ctx.fillStyle = COL_WHITE;
             ctx.textAlign = 'right';
             ctx.fillText(String(ri2 + 1).padStart(2, '0'), contentLeft2 - 14, roundMidY2 + 6);
 
