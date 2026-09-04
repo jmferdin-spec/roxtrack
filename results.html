@@ -185,7 +185,7 @@ var shareData = null;
 // Pre-load logo and icons for share images
 var logoImg = new Image();
 logoImg.crossOrigin = 'anonymous';
-logoImg.src = 'https://raw.githubusercontent.com/jmferdin-spec/FerdinLabs/main/images/RoxTrack_Logo.png';
+logoImg.src = 'https://raw.githubusercontent.com/jmferdin-spec/FerdinLabs/main/images/RoxTrack.png';
 
 var iconImgs = {};
 var iconSrcs = {
@@ -605,37 +605,25 @@ function generateShareImage(mode) {
         // ── STORY 1080x1920 — totals centered ──
         var midY = H / 2;
 
-        // Brand logo
-        if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var lhCS = 90;
-            var lwCS = lhCS * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, (W - lwCS) / 2, midY - 380, lwCS, lhCS);
-        } else {
-            ctx.letterSpacing = '14px';
-            drawCenter('ROXTRACK', midY - 310, '700 52px sans-serif', COL_GOLD);
-            ctx.letterSpacing = '0px';
-        }
-
-        // Race name
-        if (raceName) {
-            ctx.letterSpacing = '8px';
-            drawCenter(raceName.toUpperCase(), midY - 240, '700 44px sans-serif', COL_WHITE);
-            ctx.letterSpacing = '0px';
-        }
+        // Race name (replaces logo at top)
+        var displayName = raceName ? raceName.toUpperCase() : 'HYROX';
+        ctx.letterSpacing = '8px';
+        drawCenter(displayName, midY - 280, '700 52px sans-serif', COL_WHITE);
+        ctx.letterSpacing = '0px';
 
         // Distance label
         var distLabelC = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
         ctx.letterSpacing = '3px';
-        drawCenter(distLabelC, midY - 222, '500 18px sans-serif', COL_DIM);
+        drawCenter(distLabelC, midY - 242, '500 18px sans-serif', COL_DIM);
         ctx.letterSpacing = '0px';
 
         // Gold accent line
         ctx.fillStyle = COL_GOLD;
-        ctx.fillRect(W / 2 - 35, midY - 212, 70, 3);
+        ctx.fillRect(W / 2 - 35, midY - 232, 70, 3);
 
         // Date
         if (shareData.date) {
-            drawCenter(shareData.date, midY - 185, '400 26px sans-serif', COL_DIM);
+            drawCenter(shareData.date, midY - 185, '500 30px sans-serif', COL_WHITE);
         }
 
         // Big total time with shadow
@@ -668,46 +656,51 @@ function generateShareImage(mode) {
         ctx.fillStyle = COL_GOLD;
         ctx.fillRect(W / 2 - 30, midY + 330, 60, 2);
 
-        // Footer
-        ctx.letterSpacing = '4px';
-        drawCenter('BUILT FOR HYROX ATHLETES', H - 50, '400 16px sans-serif', COL_DIM);
-        ctx.letterSpacing = '0px';
+        // Footer — small logo + "Tracked with"
+        var footY = H - 55;
+        if (logoImg.complete && logoImg.naturalWidth > 0) {
+            var flh = 36;
+            var flw = flh * (logoImg.naturalWidth / logoImg.naturalHeight);
+            var trackedText = 'TRACKED WITH';
+            ctx.font = '500 14px sans-serif';
+            ctx.letterSpacing = '3px';
+            var tw = ctx.measureText(trackedText).width;
+            var totalW = tw + 10 + flw;
+            var startX = (W - totalW) / 2;
+            ctx.fillStyle = COL_DIM;
+            ctx.textAlign = 'left';
+            ctx.fillText(trackedText, startX, footY + flh / 2 + 5);
+            ctx.letterSpacing = '0px';
+            ctx.drawImage(logoImg, startX + tw + 10, footY, flw, flh);
+        } else {
+            ctx.letterSpacing = '3px';
+            drawCenter('TRACKED WITH ROXTRACK', footY + 22, '500 14px sans-serif', COL_DIM);
+            ctx.letterSpacing = '0px';
+        }
 
     } else {
         // ── POST 1080x1080 — totals centered ──
         var midY2 = H / 2;
 
-        // Brand logo
-        if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var lhCP = 75;
-            var lwCP = lhCP * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, (W - lwCP) / 2, midY2 - 300, lwCP, lhCP);
-        } else {
-            ctx.letterSpacing = '14px';
-            drawCenter('ROXTRACK', midY2 - 245, '700 48px sans-serif', COL_GOLD);
-            ctx.letterSpacing = '0px';
-        }
-
-        // Race name
-        if (raceName) {
-            ctx.letterSpacing = '6px';
-            drawCenter(raceName.toUpperCase(), midY2 - 190, '700 36px sans-serif', COL_WHITE);
-            ctx.letterSpacing = '0px';
-        }
+        // Race name (replaces logo at top)
+        var displayName2 = raceName ? raceName.toUpperCase() : 'HYROX';
+        ctx.letterSpacing = '6px';
+        drawCenter(displayName2, midY2 - 220, '700 44px sans-serif', COL_WHITE);
+        ctx.letterSpacing = '0px';
 
         // Distance label
         var distLabelC2 = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
         ctx.letterSpacing = '2px';
-        drawCenter(distLabelC2, midY2 - 177, '500 14px sans-serif', COL_DIM);
+        drawCenter(distLabelC2, midY2 - 187, '500 14px sans-serif', COL_DIM);
         ctx.letterSpacing = '0px';
 
         // Gold accent line
         ctx.fillStyle = COL_GOLD;
-        ctx.fillRect(W / 2 - 30, midY2 - 168, 60, 3);
+        ctx.fillRect(W / 2 - 30, midY2 - 178, 60, 3);
 
         // Date
         if (shareData.date) {
-            drawCenter(shareData.date, midY2 - 143, '400 22px sans-serif', COL_DIM);
+            drawCenter(shareData.date, midY2 - 143, '500 26px sans-serif', COL_WHITE);
         }
 
         // Big total time with shadow
@@ -731,14 +724,27 @@ function generateShareImage(mode) {
         // Stat strip with icons
         drawStatStrip(midY2 + 100, 120);
 
-        // Motivational text
-        ctx.letterSpacing = '3px';
-        drawCenter('8 RUNS  •  8 STATIONS  •  1 STRONGER YOU', midY2 + 255, '500 15px sans-serif', COL_DIM);
-        ctx.letterSpacing = '0px';
-
-        // Gold accent line
-        ctx.fillStyle = COL_GOLD;
-        ctx.fillRect(W / 2 - 25, midY2 + 272, 50, 2);
+        // Footer — small logo + "Tracked with"
+        var footY2 = H - 50;
+        if (logoImg.complete && logoImg.naturalWidth > 0) {
+            var flh2 = 30;
+            var flw2 = flh2 * (logoImg.naturalWidth / logoImg.naturalHeight);
+            var trackedText2 = 'TRACKED WITH';
+            ctx.font = '500 12px sans-serif';
+            ctx.letterSpacing = '3px';
+            var tw2 = ctx.measureText(trackedText2).width;
+            var totalW2 = tw2 + 8 + flw2;
+            var startX2 = (W - totalW2) / 2;
+            ctx.fillStyle = COL_DIM;
+            ctx.textAlign = 'left';
+            ctx.fillText(trackedText2, startX2, footY2 + flh2 / 2 + 4);
+            ctx.letterSpacing = '0px';
+            ctx.drawImage(logoImg, startX2 + tw2 + 8, footY2, flw2, flh2);
+        } else {
+            ctx.letterSpacing = '3px';
+            drawCenter('TRACKED WITH ROXTRACK', footY2 + 18, '500 12px sans-serif', COL_DIM);
+            ctx.letterSpacing = '0px';
+        }
     }
 
     // Download
@@ -838,39 +844,17 @@ function generateSplitsImage(mode, raceName) {
         if (rowH < 28) rowH = 28;
         var barH = 8;
         var segListH = totalRows * rowH + (rounds.length - 1) * roundGap;
-        var baseY = Math.max(40, Math.round((H - 361 - segListH) / 2));
+        var baseY = Math.max(40, Math.round((H - 300 - segListH) / 2));
 
-        // ── Header ──
-        if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var lhSS = 85;
-            var lwSS = lhSS * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, mx, baseY - 68, lwSS, lhSS);
-        } else {
-            ctx.font = '700 40px sans-serif';
-            ctx.fillStyle = COL_GOLD;
-            ctx.textAlign = 'left';
-            ctx.letterSpacing = '12px';
-            ctx.fillText('ROXTRACK', mx, baseY);
-            ctx.letterSpacing = '0px';
-        }
-
-        // ── Race name + total time ──
-        var titleY = baseY + 80;
-        if (raceName) {
-            ctx.font = '800 56px sans-serif';
-            ctx.fillStyle = COL_WHITE;
-            ctx.textAlign = 'left';
-            ctx.letterSpacing = '6px';
-            ctx.fillText(raceName.toUpperCase(), mx, titleY);
-            ctx.letterSpacing = '0px';
-        } else {
-            ctx.font = '800 56px sans-serif';
-            ctx.fillStyle = COL_WHITE;
-            ctx.textAlign = 'left';
-            ctx.letterSpacing = '6px';
-            ctx.fillText('HYROX', mx, titleY);
-            ctx.letterSpacing = '0px';
-        }
+        // ── Header — race name (replaces logo) ──
+        var displayNameSS = raceName ? raceName.toUpperCase() : 'HYROX';
+        var titleY = baseY + 10;
+        ctx.font = '800 56px sans-serif';
+        ctx.fillStyle = COL_WHITE;
+        ctx.textAlign = 'left';
+        ctx.letterSpacing = '6px';
+        ctx.fillText(displayNameSS, mx, titleY);
+        ctx.letterSpacing = '0px';
 
         // Big total time with shadow
         ctx.font = '800 130px sans-serif';
@@ -889,8 +873,8 @@ function generateSplitsImage(mode, raceName) {
 
         // Date + distance (right of total time)
         if (shareData.date) {
-            ctx.font = '500 22px sans-serif';
-            ctx.fillStyle = COL_MUTED;
+            ctx.font = '500 26px sans-serif';
+            ctx.fillStyle = COL_WHITE;
             ctx.textAlign = 'right';
             ctx.fillText(shareData.date.toUpperCase(), timeRight, titleY + 95);
         }
@@ -986,13 +970,27 @@ function generateSplitsImage(mode, raceName) {
             }
         }
 
-        // ── Footer ──
-        ctx.font = '400 16px sans-serif';
-        ctx.fillStyle = COL_DIM;
-        ctx.textAlign = 'left';
-        ctx.letterSpacing = '4px';
-        ctx.fillText('BUILT FOR HYROX ATHLETES', mx, baseY + 389 + segListH);
-        ctx.letterSpacing = '0px';
+        // ── Footer — small logo + "Tracked with" ──
+        var footYS = baseY + 389 + segListH;
+        if (logoImg.complete && logoImg.naturalWidth > 0) {
+            var flhS = 30;
+            var flwS = flhS * (logoImg.naturalWidth / logoImg.naturalHeight);
+            ctx.font = '500 13px sans-serif';
+            ctx.letterSpacing = '3px';
+            ctx.fillStyle = COL_DIM;
+            ctx.textAlign = 'left';
+            ctx.fillText('TRACKED WITH', mx, footYS + 2);
+            ctx.letterSpacing = '0px';
+            var twS = ctx.measureText('TRACKED WITH').width;
+            ctx.drawImage(logoImg, mx + twS + 10, footYS - 14, flwS, flhS);
+        } else {
+            ctx.font = '500 13px sans-serif';
+            ctx.fillStyle = COL_DIM;
+            ctx.textAlign = 'left';
+            ctx.letterSpacing = '3px';
+            ctx.fillText('TRACKED WITH ROXTRACK', mx, footYS + 2);
+            ctx.letterSpacing = '0px';
+        }
 
     } else {
         // ── POST 1080x1080 — compact branded splits ──
@@ -1011,38 +1009,23 @@ function generateSplitsImage(mode, raceName) {
         var rowH2 = 26;
         var barH2 = 2;
         var segListH2 = totalRows2 * rowH2 + (rounds.length - 1) * roundGap2;
-        var baseY2 = Math.round((H - 245 - segListH2) / 2);
+        var baseY2 = Math.round((H - 190 - segListH2) / 2);
         while (baseY2 < 30 && rowH2 > 20) {
             rowH2--;
             segListH2 = totalRows2 * rowH2 + (rounds.length - 1) * roundGap2;
-            baseY2 = Math.round((H - 245 - segListH2) / 2);
+            baseY2 = Math.round((H - 190 - segListH2) / 2);
         }
         if (baseY2 < 20) baseY2 = 20;
 
-        // Header
-        if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var lhSP = 65;
-            var lwSP = lhSP * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, mx2, baseY2 - 5, lwSP, lhSP);
-        } else {
-            ctx.font = '700 32px sans-serif';
-            ctx.fillStyle = COL_GOLD;
-            ctx.textAlign = 'left';
-            ctx.letterSpacing = '8px';
-            ctx.fillText('ROXTRACK', mx2, baseY2);
-            ctx.letterSpacing = '0px';
-        }
-
-        // Race name + total
-        var ty2 = baseY2 + 68;
-        if (raceName) {
-            ctx.font = '800 34px sans-serif';
-            ctx.fillStyle = COL_WHITE;
-            ctx.textAlign = 'left';
-            ctx.letterSpacing = '4px';
-            ctx.fillText(raceName.toUpperCase(), mx2, ty2);
-            ctx.letterSpacing = '0px';
-        }
+        // Header — race name (replaces logo)
+        var displayNameSP = raceName ? raceName.toUpperCase() : 'HYROX';
+        var ty2 = baseY2 + 10;
+        ctx.font = '800 34px sans-serif';
+        ctx.fillStyle = COL_WHITE;
+        ctx.textAlign = 'left';
+        ctx.letterSpacing = '4px';
+        ctx.fillText(displayNameSP, mx2, ty2);
+        ctx.letterSpacing = '0px';
 
         ctx.font = '800 68px sans-serif';
         ctx.textAlign = 'left';
@@ -1058,8 +1041,8 @@ function generateSplitsImage(mode, raceName) {
 
         // Date + distance (right of total time)
         if (shareData.date) {
-            ctx.font = '500 18px sans-serif';
-            ctx.fillStyle = COL_MUTED;
+            ctx.font = '500 22px sans-serif';
+            ctx.fillStyle = COL_WHITE;
             ctx.textAlign = 'right';
             ctx.fillText(shareData.date.toUpperCase(), timeRight2, ty2 + 40);
         }
@@ -1148,6 +1131,28 @@ function generateSplitsImage(mode, raceName) {
                 ctx.lineTo(timeRight2, sy2 - 2);
                 ctx.stroke();
             }
+        }
+
+        // ── Footer — small logo + "Tracked with" ──
+        var footYP = H - 40;
+        if (logoImg.complete && logoImg.naturalWidth > 0) {
+            var flhP = 24;
+            var flwP = flhP * (logoImg.naturalWidth / logoImg.naturalHeight);
+            ctx.font = '500 11px sans-serif';
+            ctx.letterSpacing = '3px';
+            ctx.fillStyle = COL_DIM;
+            ctx.textAlign = 'left';
+            ctx.fillText('TRACKED WITH', mx2, footYP + 2);
+            ctx.letterSpacing = '0px';
+            var twP = ctx.measureText('TRACKED WITH').width;
+            ctx.drawImage(logoImg, mx2 + twP + 8, footYP - 10, flwP, flhP);
+        } else {
+            ctx.font = '500 11px sans-serif';
+            ctx.fillStyle = COL_DIM;
+            ctx.textAlign = 'left';
+            ctx.letterSpacing = '3px';
+            ctx.fillText('TRACKED WITH ROXTRACK', mx2, footYP + 2);
+            ctx.letterSpacing = '0px';
         }
     }
 
