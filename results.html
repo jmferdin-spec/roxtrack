@@ -293,42 +293,58 @@ function renderRace(d, el) {
     if (parsedLaps.length > 0) {
         html += '<div class="seg-grid">';
 
-        // Group laps into pairs: run + station, skipping roxzone as its own row
+        // Group laps into pairs: run + station side by side
+        // RoxZones always render as single rows for consistency
         var li = 0;
         while (li < parsedLaps.length) {
             var lap1 = parsedLaps[li];
-            var lap2 = (li + 1 < parsedLaps.length) ? parsedLaps[li + 1] : null;
 
-            // If lap1 is a run and lap2 is a station (or roxzone followed by station),
-            // pair them. Otherwise render as single.
-            var cls1 = lap1.type === 0 ? 'run' : lap1.type === 1 ? 'roxzone' : 'station';
-            var detail1 = '';
-            if (lap1.type === 0 && lap1.dist > 0) {
-                detail1 = (lap1.dist >= 1000) ? (lap1.dist / 1000) + 'km' : lap1.dist + 'm';
-            }
-            var pace1 = (lap1.type === 0) ? fmtPace(lap1.dur, lap1.dist) : '';
-            if (pace1 && pace1 !== '—') detail1 = detail1 ? detail1 + ' · ' + pace1 : pace1;
-
-            if (lap2 && lap1.type === 0 && (lap2.type === 2 || lap2.type === 1)) {
-                // Paired row: run + station/roxzone
-                var cls2 = lap2.type === 1 ? 'roxzone' : 'station';
-                html += '<div class="seg-row">';
-                html += buildSegCell(lap1, cls1, detail1);
-                html += buildSegCell(lap2, cls2, '');
+            // RoxZones always get their own single row
+            if (lap1.type === 1) {
+                html += '<div class="seg-row single">';
+                html += buildSegCell(lap1, 'roxzone', '');
                 html += '</div>';
-                li += 2;
+                li++;
+                continue;
+            }
 
-                // If next lap is roxzone (transition), render it as a single narrow row
-                if (li < parsedLaps.length && parsedLaps[li].type === 1) {
+            // For runs, look ahead past any roxzones to find the station partner
+            if (lap1.type === 0) {
+                var detail1 = '';
+                if (lap1.dist > 0) {
+                    detail1 = (lap1.dist >= 1000) ? (lap1.dist / 1000) + 'km' : lap1.dist + 'm';
+                }
+                var pace1 = fmtPace(lap1.dur, lap1.dist);
+                if (pace1 && pace1 !== '—') detail1 = detail1 ? detail1 + ' · ' + pace1 : pace1;
+
+                // Skip roxzones to find station
+                var si = li + 1;
+                while (si < parsedLaps.length && parsedLaps[si].type === 1) { si++; }
+
+                if (si < parsedLaps.length && parsedLaps[si].type === 2) {
+                    // Pair run + station, render roxzones between them as single rows
+                    html += '<div class="seg-row">';
+                    html += buildSegCell(lap1, 'run', detail1);
+                    html += buildSegCell(parsedLaps[si], 'station', '');
+                    html += '</div>';
+                    // Now render any roxzones that were between run and station
+                    for (var ri = li + 1; ri < si; ri++) {
+                        html += '<div class="seg-row single">';
+                        html += buildSegCell(parsedLaps[ri], 'roxzone', '');
+                        html += '</div>';
+                    }
+                    li = si + 1;
+                } else {
+                    // No station partner found, render run alone
                     html += '<div class="seg-row single">';
-                    html += buildSegCell(parsedLaps[li], 'roxzone', '');
+                    html += buildSegCell(lap1, 'run', detail1);
                     html += '</div>';
                     li++;
                 }
             } else {
-                // Single row
+                // Station without a run partner
                 html += '<div class="seg-row single">';
-                html += buildSegCell(lap1, cls1, detail1);
+                html += buildSegCell(lap1, 'station', '');
                 html += '</div>';
                 li++;
             }
@@ -567,45 +583,6 @@ function generateShareImage(mode) {
         // Stat strip
         drawStatStrip(cy + 170, 70);
 
-        // Paired segment rows
-        var segTop = cy + 270;
-        var mx = 60;
-        var gap = 6;
-        var pairW = (W - mx * 2 - gap) / 2;
-        var rowH = 60;
-        var rowGap = 4;
-
-        // Calculate available height and adjust
-        var availH = H - segTop - 80;
-        var numPairs = Math.ceil(laps.length / 2);
-        if (numPairs > 0 && (numPairs * (rowH + rowGap)) > availH) {
-            rowH = Math.floor((availH - numPairs * rowGap) / numPairs);
-            if (rowH < 44) rowH = 44;
-        }
-
-        var sy = segTop;
-        var li = 0;
-        while (li < laps.length) {
-            var l1 = laps[li];
-            var l2 = (li + 1 < laps.length) ? laps[li + 1] : null;
-
-            if (l2 && l1.type === 0 && (l2.type === 2 || l2.type === 1)) {
-                drawSegRow(sy, l1, mx, pairW, rowH);
-                drawSegRow(sy, l2, mx + pairW + gap, pairW, rowH);
-                li += 2;
-                // Skip roxzone between pairs
-                if (li < laps.length && laps[li].type === 1) {
-                    sy += rowH + rowGap;
-                    drawSegRow(sy, laps[li], mx, W - mx * 2, rowH);
-                    li++;
-                }
-            } else {
-                drawSegRow(sy, l1, mx, W - mx * 2, rowH);
-                li++;
-            }
-            sy += rowH + rowGap;
-        }
-
         // Footer
         ctx.letterSpacing = '4px';
         drawCenter('ROXTRACK', H - 50, '500 14px sans-serif', '#252525');
@@ -645,42 +622,6 @@ function generateShareImage(mode) {
 
         // Stat strip
         drawStatStrip(cy2 + 150, 60);
-
-        // Paired segment rows (compact)
-        var segTop2 = cy2 + 230;
-        var mx2 = 40;
-        var gap2 = 4;
-        var pairW2 = (W - mx2 * 2 - gap2) / 2;
-        var availH2 = H - segTop2 - 60;
-        var numPairs2 = Math.ceil(laps.length / 2);
-        var rowH2 = 48;
-        var rowGap2 = 3;
-        if (numPairs2 > 0 && (numPairs2 * (rowH2 + rowGap2)) > availH2) {
-            rowH2 = Math.floor((availH2 - numPairs2 * rowGap2) / numPairs2);
-            if (rowH2 < 36) rowH2 = 36;
-        }
-
-        var sy2 = segTop2;
-        var li2 = 0;
-        while (li2 < laps.length) {
-            var la = laps[li2];
-            var lb = (li2 + 1 < laps.length) ? laps[li2 + 1] : null;
-
-            if (lb && la.type === 0 && (lb.type === 2 || lb.type === 1)) {
-                drawSegRow(sy2, la, mx2, pairW2, rowH2);
-                drawSegRow(sy2, lb, mx2 + pairW2 + gap2, pairW2, rowH2);
-                li2 += 2;
-                if (li2 < laps.length && laps[li2].type === 1) {
-                    sy2 += rowH2 + rowGap2;
-                    drawSegRow(sy2, laps[li2], mx2, W - mx2 * 2, rowH2);
-                    li2++;
-                }
-            } else {
-                drawSegRow(sy2, la, mx2, W - mx2 * 2, rowH2);
-                li2++;
-            }
-            sy2 += rowH2 + rowGap2;
-        }
 
         // Footer
         ctx.letterSpacing = '4px';
@@ -759,7 +700,7 @@ function generateSplitsImage(mode, raceName) {
         drawCenter('TOTAL TIME', cy + 100, '500 14px sans-serif', COL_MUTED);
 
         var barTop = cy + 140;
-        var barH = 12;
+        var barH = 6;
         var availH = H - barTop - 80;
         var rowH = Math.floor(availH / laps.length);
         if (rowH > 56) rowH = 56;
@@ -826,7 +767,7 @@ function generateSplitsImage(mode, raceName) {
         drawCenter('TOTAL TIME', cy2 + 90, '500 12px sans-serif', COL_MUTED);
 
         var barTop2 = cy2 + 120;
-        var barH2 = 10;
+        var barH2 = 5;
         var availH2 = H - barTop2 - 60;
         var rowH2 = Math.floor(availH2 / laps.length);
         if (rowH2 > 44) rowH2 = 44;
