@@ -127,6 +127,12 @@ body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adj
 </div>
 <div class="modal-label">Race Name (optional)</div>
 <input type="text" class="modal-input" id="raceNameInput" placeholder="e.g. Houston HYROX Open" maxlength="40">
+<div class="modal-label" style="margin-top:16px">Background</div>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;margin-top:6px">
+<span style="font-size:11px;color:var(--muted);white-space:nowrap">Transparent</span>
+<input type="range" id="bgOpacitySlider" min="0" max="100" value="100" style="flex:1;accent-color:var(--accent);cursor:pointer" oninput="document.getElementById('bgOpacityVal').textContent=this.value+'%'">
+<span id="bgOpacityVal" style="font-size:11px;color:var(--muted);min-width:32px;text-align:right">100%</span>
+</div>
 <div class="modal-buttons">
 <button class="modal-btn modal-btn-story" onclick="generateShareImage('story')">Story 9:16</button>
 <button class="modal-btn modal-btn-post" onclick="generateShareImage('post')">Post 1:1</button>
@@ -449,14 +455,20 @@ function generateShareImage(mode) {
     canvas.width = W;
     canvas.height = H;
     var ctx = canvas.getContext('2d');
+    var bgOpacity = parseInt(document.getElementById('bgOpacitySlider').value, 10) / 100;
 
-    // Gray gradient background
-    var bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-    bgGrad.addColorStop(0, '#2a2a2e');
-    bgGrad.addColorStop(0.5, '#1a1a1e');
-    bgGrad.addColorStop(1, '#101014');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, W, H);
+    // Gray gradient background (with opacity)
+    ctx.clearRect(0, 0, W, H);
+    if (bgOpacity > 0) {
+        ctx.globalAlpha = bgOpacity;
+        var bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+        bgGrad.addColorStop(0, '#2a2a2e');
+        bgGrad.addColorStop(0.5, '#1a1a1e');
+        bgGrad.addColorStop(1, '#101014');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
+        ctx.globalAlpha = 1;
+    }
 
     function drawCenter(text, y, font, color) {
         ctx.font = font;
@@ -752,14 +764,20 @@ function generateSplitsImage(mode, raceName) {
     canvas.width = W;
     canvas.height = H;
     var ctx = canvas.getContext('2d');
+    var bgOpacity = parseInt(document.getElementById('bgOpacitySlider').value, 10) / 100;
 
-    // Gray gradient background
-    var bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-    bgGrad.addColorStop(0, '#2a2a2e');
-    bgGrad.addColorStop(0.5, '#1a1a1e');
-    bgGrad.addColorStop(1, '#101014');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, W, H);
+    // Gray gradient background (with opacity)
+    ctx.clearRect(0, 0, W, H);
+    if (bgOpacity > 0) {
+        ctx.globalAlpha = bgOpacity;
+        var bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+        bgGrad.addColorStop(0, '#2a2a2e');
+        bgGrad.addColorStop(0.5, '#1a1a1e');
+        bgGrad.addColorStop(1, '#101014');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
+        ctx.globalAlpha = 1;
+    }
 
     function drawCenter(text, y, font, color) {
         ctx.font = font;
