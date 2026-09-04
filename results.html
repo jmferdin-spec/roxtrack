@@ -175,10 +175,24 @@ function fmtDateLong(unixSec) {
 var API_BASE = 'https://roxtrack-api.jmferdin.workers.dev';
 var shareData = null;
 
-// Pre-load logo for share images
+// Pre-load logo and icons for share images
 var logoImg = new Image();
 logoImg.crossOrigin = 'anonymous';
 logoImg.src = 'https://raw.githubusercontent.com/jmferdin-spec/FerdinLabs/main/images/RoxTrack_Logo.png';
+
+var iconImgs = {};
+var iconSrcs = {
+    run: 'https://raw.githubusercontent.com/jmferdin-spec/FerdinLabs/main/images/runs.png',
+    station: 'https://raw.githubusercontent.com/jmferdin-spec/FerdinLabs/main/images/stations.png',
+    stopwatch: 'https://raw.githubusercontent.com/jmferdin-spec/FerdinLabs/main/images/roxzone.png',
+    pace: 'https://raw.githubusercontent.com/jmferdin-spec/FerdinLabs/main/images/pace.png',
+    heart: 'https://raw.githubusercontent.com/jmferdin-spec/FerdinLabs/main/images/hr.png'
+};
+for (var ik in iconSrcs) {
+    iconImgs[ik] = new Image();
+    iconImgs[ik].crossOrigin = 'anonymous';
+    iconImgs[ik].src = iconSrcs[ik];
+}
 
 function init() {
     var p = new URLSearchParams(window.location.search);
@@ -538,7 +552,18 @@ function generateShareImage(mode) {
 
         for (var i = 0; i < items.length; i++) {
             var cx = mx + cellW * i + cellW / 2;
-            drawIcon(items[i].icon, cx, y + stripH * 0.22, iconSz, items[i].color);
+            var icoImg = iconImgs[items[i].icon];
+            if (icoImg && icoImg.complete && icoImg.naturalWidth > 0) {
+                var iw = iconSz, ih = iconSz;
+                if (icoImg.naturalWidth > icoImg.naturalHeight) {
+                    ih = iconSz * (icoImg.naturalHeight / icoImg.naturalWidth);
+                } else if (icoImg.naturalHeight > icoImg.naturalWidth) {
+                    iw = iconSz * (icoImg.naturalWidth / icoImg.naturalHeight);
+                }
+                ctx.drawImage(icoImg, cx - iw / 2, y + stripH * 0.22 - ih / 2, iw, ih);
+            } else {
+                drawIcon(items[i].icon, cx, y + stripH * 0.22, iconSz, items[i].color);
+            }
             ctx.font = '700 ' + valSize + 'px sans-serif';
             ctx.fillStyle = items[i].color;
             ctx.textAlign = 'center';
@@ -584,6 +609,12 @@ function generateShareImage(mode) {
             drawCenter(raceName.toUpperCase(), midY - 240, '700 44px sans-serif', COL_WHITE);
             ctx.letterSpacing = '0px';
         }
+
+        // Distance label
+        var distLabelC = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
+        ctx.letterSpacing = '3px';
+        drawCenter(distLabelC, midY - 222, '500 18px sans-serif', COL_DIM);
+        ctx.letterSpacing = '0px';
 
         // Gold accent line
         ctx.fillStyle = COL_GOLD;
@@ -650,6 +681,12 @@ function generateShareImage(mode) {
             drawCenter(raceName.toUpperCase(), midY2 - 190, '700 36px sans-serif', COL_WHITE);
             ctx.letterSpacing = '0px';
         }
+
+        // Distance label
+        var distLabelC2 = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
+        ctx.letterSpacing = '2px';
+        drawCenter(distLabelC2, midY2 - 177, '500 14px sans-serif', COL_DIM);
+        ctx.letterSpacing = '0px';
 
         // Gold accent line
         ctx.fillStyle = COL_GOLD;
