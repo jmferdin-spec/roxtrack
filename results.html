@@ -108,7 +108,7 @@ body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adj
 <body>
 <div class="page" id="page">
 <div class="header">
-    <div class="logo">ROXTRACK</div>
+    <div class="logo"><img src="https://raw.githubusercontent.com/jmferdin-spec/FerdinLabs/main/images/RoxTrack_Logo.png" alt="RoxTrack" style="height:42px"></div>
 </div>
 <div id="content"></div>
 </div>
@@ -579,9 +579,9 @@ function generateShareImage(mode) {
 
         // Brand
         if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var lhCS = 55;
+            var lhCS = 90;
             var lwCS = lhCS * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, (W - lwCS) / 2, midY - 325, lwCS, lhCS);
+            ctx.drawImage(logoImg, (W - lwCS) / 2, midY - 360, lwCS, lhCS);
         } else {
             ctx.letterSpacing = '14px';
             drawCenter('ROXTRACK', midY - 280, '700 52px sans-serif', COL_GOLD);
@@ -621,9 +621,9 @@ function generateShareImage(mode) {
 
         // Brand
         if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var lhCP = 50;
+            var lhCP = 75;
             var lwCP = lhCP * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, (W - lwCP) / 2, midY2 - 260, lwCP, lhCP);
+            ctx.drawImage(logoImg, (W - lwCP) / 2, midY2 - 285, lwCP, lhCP);
         } else {
             ctx.letterSpacing = '14px';
             drawCenter('ROXTRACK', midY2 - 220, '700 48px sans-serif', COL_GOLD);
@@ -781,9 +781,9 @@ function generateSplitsImage(mode, raceName) {
 
         // ── Header ──
         if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var lhSS = 45;
+            var lhSS = 75;
             var lwSS = lhSS * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, mx, baseY - 38, lwSS, lhSS);
+            ctx.drawImage(logoImg, mx, baseY - 60, lwSS, lhSS);
         } else {
             ctx.font = '700 40px sans-serif';
             ctx.fillStyle = COL_GOLD;
@@ -792,12 +792,6 @@ function generateSplitsImage(mode, raceName) {
             ctx.fillText('ROXTRACK', mx, baseY);
             ctx.letterSpacing = '0px';
         }
-
-        ctx.font = '400 16px sans-serif';
-        ctx.fillStyle = COL_DIM;
-        ctx.letterSpacing = '4px';
-        ctx.fillText('TRACK  |  TRAIN  |  RACE', mx, baseY + 25);
-        ctx.letterSpacing = '0px';
 
         // Date + distance top-right
         if (shareData.date) {
@@ -964,9 +958,9 @@ function generateSplitsImage(mode, raceName) {
 
         // Header
         if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var lhSP = 36;
+            var lhSP = 55;
             var lwSP = lhSP * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, mx2, baseY2 - 30, lwSP, lhSP);
+            ctx.drawImage(logoImg, mx2, baseY2 - 45, lwSP, lhSP);
         } else {
             ctx.font = '700 32px sans-serif';
             ctx.fillStyle = COL_GOLD;
@@ -975,12 +969,6 @@ function generateSplitsImage(mode, raceName) {
             ctx.fillText('ROXTRACK', mx2, baseY2);
             ctx.letterSpacing = '0px';
         }
-
-        ctx.font = '400 13px sans-serif';
-        ctx.fillStyle = COL_DIM;
-        ctx.letterSpacing = '3px';
-        ctx.fillText('BUILT FOR HYROX ATHLETES', mx2, baseY2 + 22);
-        ctx.letterSpacing = '0px';
 
         if (shareData.date) {
             ctx.font = '500 18px sans-serif';
