@@ -679,7 +679,7 @@ function generateSplitsImage(mode, raceName) {
         var mx = 60;
         var contentLeft = 130;
         var barLeft = 300;
-        var barRight = W - mx - 100;
+        var barRight = W - mx - 10;
         var barW_max = barRight - barLeft;
         var timeRight = W - mx;
 
@@ -796,7 +796,7 @@ function generateSplitsImage(mode, raceName) {
 
             // Divider line between rounds
             if (ri < rounds.length - 1) {
-                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.strokeStyle = 'rgba(255,255,255,0.35)';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
                 ctx.moveTo(contentLeft, sy - 4);
@@ -818,7 +818,7 @@ function generateSplitsImage(mode, raceName) {
         var mx2 = 50;
         var contentLeft2 = 110;
         var barLeft2 = 260;
-        var barRight2 = W - mx2 - 80;
+        var barRight2 = W - mx2 - 10;
         var barW_max2 = barRight2 - barLeft2;
         var timeRight2 = W - mx2;
 
@@ -910,7 +910,7 @@ function generateSplitsImage(mode, raceName) {
 
             // Divider line between rounds
             if (ri2 < rounds.length - 1) {
-                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.strokeStyle = 'rgba(255,255,255,0.35)';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
                 ctx.moveTo(contentLeft2, sy2 - 2);
