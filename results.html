@@ -108,7 +108,7 @@ body{background:#fff;color:#111;-webkit-print-color-adjust:exact;print-color-adj
 <body>
 <div class="page" id="page">
 <div class="header">
-    <div class="logo"><img src="https://raw.githubusercontent.com/jmferdin-spec/FerdinLabs/main/images/RoxTrack_Logo.png" alt="RoxTrack" style="height:42px"></div>
+    <div class="logo"><img src="https://raw.githubusercontent.com/jmferdin-spec/FerdinLabs/main/images/RoxTrack_Logo.png" alt="RoxTrack" style="height:60px"></div>
 </div>
 <div id="content"></div>
 </div>
@@ -781,9 +781,9 @@ function generateSplitsImage(mode, raceName) {
 
         // ── Header ──
         if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var lhSS = 75;
+            var lhSS = 85;
             var lwSS = lhSS * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, mx, baseY - 60, lwSS, lhSS);
+            ctx.drawImage(logoImg, mx, baseY - 68, lwSS, lhSS);
         } else {
             ctx.font = '700 40px sans-serif';
             ctx.fillStyle = COL_GOLD;
@@ -792,21 +792,6 @@ function generateSplitsImage(mode, raceName) {
             ctx.fillText('ROXTRACK', mx, baseY);
             ctx.letterSpacing = '0px';
         }
-
-        // Date + distance top-right
-        if (shareData.date) {
-            ctx.font = '500 22px sans-serif';
-            ctx.fillStyle = COL_MUTED;
-            ctx.textAlign = 'right';
-            ctx.fillText(shareData.date.toUpperCase(), timeRight, baseY);
-        }
-        var distLabel = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
-        ctx.font = '500 18px sans-serif';
-        ctx.fillStyle = COL_DIM;
-        ctx.textAlign = 'right';
-        ctx.letterSpacing = '2px';
-        ctx.fillText(distLabel, timeRight, baseY + 25);
-        ctx.letterSpacing = '0px';
 
         // ── Race name + total time ──
         var titleY = baseY + 80;
@@ -837,6 +822,21 @@ function generateSplitsImage(mode, raceName) {
         ctx.textAlign = 'left';
         ctx.letterSpacing = '6px';
         ctx.fillText('TOTAL TIME', mx, titleY + 158);
+        ctx.letterSpacing = '0px';
+
+        // Date + distance (right of total time)
+        if (shareData.date) {
+            ctx.font = '500 22px sans-serif';
+            ctx.fillStyle = COL_MUTED;
+            ctx.textAlign = 'right';
+            ctx.fillText(shareData.date.toUpperCase(), timeRight, titleY + 95);
+        }
+        var distLabel = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
+        ctx.font = '500 18px sans-serif';
+        ctx.fillStyle = COL_DIM;
+        ctx.textAlign = 'right';
+        ctx.letterSpacing = '2px';
+        ctx.fillText(distLabel, timeRight, titleY + 122);
         ctx.letterSpacing = '0px';
 
         // ── Stat boxes (horizontal strip below total) ──
@@ -958,9 +958,9 @@ function generateSplitsImage(mode, raceName) {
 
         // Header
         if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var lhSP = 55;
+            var lhSP = 65;
             var lwSP = lhSP * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, mx2, baseY2 - 45, lwSP, lhSP);
+            ctx.drawImage(logoImg, mx2, baseY2 - 52, lwSP, lhSP);
         } else {
             ctx.font = '700 32px sans-serif';
             ctx.fillStyle = COL_GOLD;
@@ -969,20 +969,6 @@ function generateSplitsImage(mode, raceName) {
             ctx.fillText('ROXTRACK', mx2, baseY2);
             ctx.letterSpacing = '0px';
         }
-
-        if (shareData.date) {
-            ctx.font = '500 18px sans-serif';
-            ctx.fillStyle = COL_MUTED;
-            ctx.textAlign = 'right';
-            ctx.fillText(shareData.date.toUpperCase(), timeRight2, baseY2);
-        }
-        var distLabel2 = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
-        ctx.font = '500 14px sans-serif';
-        ctx.fillStyle = COL_DIM;
-        ctx.textAlign = 'right';
-        ctx.letterSpacing = '2px';
-        ctx.fillText(distLabel2, timeRight2, baseY2 + 22);
-        ctx.letterSpacing = '0px';
 
         // Race name + total
         var ty2 = baseY2 + 55;
@@ -1003,6 +989,21 @@ function generateSplitsImage(mode, raceName) {
         ctx.fillStyle = COL_MUTED;
         ctx.letterSpacing = '4px';
         ctx.fillText('TOTAL TIME', mx2, ty2 + 88);
+        ctx.letterSpacing = '0px';
+
+        // Date + distance (right of total time)
+        if (shareData.date) {
+            ctx.font = '500 18px sans-serif';
+            ctx.fillStyle = COL_MUTED;
+            ctx.textAlign = 'right';
+            ctx.fillText(shareData.date.toUpperCase(), timeRight2, ty2 + 40);
+        }
+        var distLabel2 = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
+        ctx.font = '500 14px sans-serif';
+        ctx.fillStyle = COL_DIM;
+        ctx.textAlign = 'right';
+        ctx.letterSpacing = '2px';
+        ctx.fillText(distLabel2, timeRight2, ty2 + 60);
         ctx.letterSpacing = '0px';
 
         // ── Stat boxes (side by side) ──
