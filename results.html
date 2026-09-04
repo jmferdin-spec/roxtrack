@@ -362,7 +362,7 @@ function renderRace(d, el) {
     html += '<button class="btn btn-secondary" onclick="doShare()">Share Link</button>';
     html += '</div>';
 
-    html += '<div class="footer"><div class="footer-text">Recorded with RoxTrack for Garmin</div></div>';
+    html += '<div class="footer"><div class="footer-text">Tracked with RoxTrack for Garmin</div></div>';
 
     el.innerHTML = html;
 
@@ -582,7 +582,7 @@ function generateShareImage(mode) {
             ctx.textAlign = 'center';
             ctx.fillText(items[i].val, cx, y + stripH * 0.58);
             ctx.font = '500 ' + lblSize + 'px sans-serif';
-            ctx.fillStyle = COL_DIM;
+            ctx.fillStyle = COL_WHITE;
             ctx.letterSpacing = '2px';
             ctx.fillText(items[i].label, cx, y + stripH * 0.78);
             ctx.letterSpacing = '0px';
@@ -614,7 +614,7 @@ function generateShareImage(mode) {
         // Distance label
         var distLabelC = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
         ctx.letterSpacing = '3px';
-        drawCenter(distLabelC, midY - 242, '500 18px sans-serif', COL_DIM);
+        drawCenter(distLabelC, midY - 242, '500 18px sans-serif', COL_WHITE);
         ctx.letterSpacing = '0px';
 
         // Gold accent line
@@ -636,12 +636,12 @@ function generateShareImage(mode) {
 
         // TOTAL TIME label
         ctx.letterSpacing = '10px';
-        drawCenter('TOTAL TIME', midY + 70, '500 22px sans-serif', COL_MUTED);
+        drawCenter('TOTAL TIME', midY + 70, '500 22px sans-serif', COL_WHITE);
         ctx.letterSpacing = '0px';
 
         // Distance %
         if (shareData.pct !== 100) {
-            drawCenter(shareData.pct + '% Distance', midY + 100, '400 20px sans-serif', COL_DIM);
+            drawCenter(shareData.pct + '% Distance', midY + 100, '400 20px sans-serif', COL_WHITE);
         }
 
         // Stat strip with icons
@@ -658,14 +658,14 @@ function generateShareImage(mode) {
             var tw = ctx.measureText(trackedText).width;
             var totalW = tw + 8 + flw;
             var startX = (W - totalW) / 2;
-            ctx.fillStyle = COL_DIM;
+            ctx.fillStyle = COL_WHITE;
             ctx.textAlign = 'left';
             ctx.fillText(trackedText, startX, trackY + flh / 2 + 5);
             ctx.letterSpacing = '0px';
             ctx.drawImage(logoImg, startX + tw + 8, trackY, flw, flh);
         } else {
             ctx.letterSpacing = '3px';
-            drawCenter('TRACKED WITH ROXTRACK', trackY + 16, '500 14px sans-serif', COL_DIM);
+            drawCenter('TRACKED WITH ROXTRACK', trackY + 16, '500 14px sans-serif', COL_WHITE);
             ctx.letterSpacing = '0px';
         }
 
@@ -682,7 +682,7 @@ function generateShareImage(mode) {
         // Distance label
         var distLabelC2 = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
         ctx.letterSpacing = '2px';
-        drawCenter(distLabelC2, midY2 - 187, '500 14px sans-serif', COL_DIM);
+        drawCenter(distLabelC2, midY2 - 187, '500 14px sans-serif', COL_WHITE);
         ctx.letterSpacing = '0px';
 
         // Gold accent line
@@ -704,12 +704,12 @@ function generateShareImage(mode) {
 
         // TOTAL TIME label
         ctx.letterSpacing = '8px';
-        drawCenter('TOTAL TIME', midY2 + 55, '500 18px sans-serif', COL_MUTED);
+        drawCenter('TOTAL TIME', midY2 + 55, '500 18px sans-serif', COL_WHITE);
         ctx.letterSpacing = '0px';
 
         // Distance %
         if (shareData.pct !== 100) {
-            drawCenter(shareData.pct + '% Distance', midY2 + 80, '400 18px sans-serif', COL_DIM);
+            drawCenter(shareData.pct + '% Distance', midY2 + 80, '400 18px sans-serif', COL_WHITE);
         }
 
         // Stat strip with icons
@@ -727,7 +727,7 @@ function generateShareImage(mode) {
             ctx.letterSpacing = '0px';
             var totalW2 = tw2 + 8 + flw2;
             var startX2 = (W - totalW2) / 2;
-            ctx.fillStyle = COL_DIM;
+            ctx.fillStyle = COL_WHITE;
             ctx.textAlign = 'left';
             ctx.letterSpacing = '3px';
             ctx.fillText(trackedText2, startX2, trackY2 + flh2 / 2 + 4);
@@ -735,7 +735,7 @@ function generateShareImage(mode) {
             ctx.drawImage(logoImg, startX2 + tw2 + 8, trackY2, flw2, flh2);
         } else {
             ctx.letterSpacing = '3px';
-            drawCenter('TRACKED WITH ROXTRACK', trackY2 + 14, '500 12px sans-serif', COL_DIM);
+            drawCenter('TRACKED WITH ROXTRACK', trackY2 + 14, '500 12px sans-serif', COL_WHITE);
             ctx.letterSpacing = '0px';
         }
     }
@@ -858,7 +858,7 @@ function generateSplitsImage(mode, raceName) {
         ctx.fillText(shareData.total, mx, titleY + 130);
 
         ctx.font = '500 18px sans-serif';
-        ctx.fillStyle = COL_MUTED;
+        ctx.fillStyle = COL_WHITE;
         ctx.textAlign = 'left';
         ctx.letterSpacing = '6px';
         ctx.fillText('TOTAL TIME', mx, titleY + 158);
@@ -873,7 +873,7 @@ function generateSplitsImage(mode, raceName) {
         }
         var distLabel = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
         ctx.font = '500 18px sans-serif';
-        ctx.fillStyle = COL_DIM;
+        ctx.fillStyle = COL_WHITE;
         ctx.textAlign = 'right';
         ctx.letterSpacing = '2px';
         ctx.fillText(distLabel, timeRight, titleY + 122);
@@ -970,18 +970,19 @@ function generateSplitsImage(mode, raceName) {
             var flwS = flhS * (logoImg.naturalWidth / logoImg.naturalHeight);
             ctx.font = '500 13px sans-serif';
             ctx.letterSpacing = '3px';
-            ctx.fillStyle = COL_DIM;
-            ctx.textAlign = 'left';
-            ctx.fillText('TRACKED WITH', mx, footYS + 2);
-            ctx.letterSpacing = '0px';
             var twS = ctx.measureText('TRACKED WITH').width;
-            ctx.drawImage(logoImg, mx + twS + 10, footYS - 9, flwS, flhS);
-        } else {
-            ctx.font = '500 13px sans-serif';
-            ctx.fillStyle = COL_DIM;
+            ctx.letterSpacing = '0px';
+            var totalWS = twS + 8 + flwS;
+            var startXS = (W - totalWS) / 2;
+            ctx.fillStyle = COL_WHITE;
             ctx.textAlign = 'left';
             ctx.letterSpacing = '3px';
-            ctx.fillText('TRACKED WITH ROXTRACK', mx, footYS + 2);
+            ctx.fillText('TRACKED WITH', startXS, footYS + flhS / 2 + 4);
+            ctx.letterSpacing = '0px';
+            ctx.drawImage(logoImg, startXS + twS + 8, footYS, flwS, flhS);
+        } else {
+            ctx.letterSpacing = '3px';
+            drawCenter('TRACKED WITH ROXTRACK', footYS + 14, '500 13px sans-serif', COL_WHITE);
             ctx.letterSpacing = '0px';
         }
 
@@ -1027,7 +1028,7 @@ function generateSplitsImage(mode, raceName) {
         ctx.fillStyle = COL_WHITE;
         ctx.fillText(shareData.total, mx2, ty2 + 68);
         ctx.font = '500 13px sans-serif';
-        ctx.fillStyle = COL_MUTED;
+        ctx.fillStyle = COL_WHITE;
         ctx.letterSpacing = '4px';
         ctx.fillText('TOTAL TIME', mx2, ty2 + 88);
         ctx.letterSpacing = '0px';
@@ -1041,7 +1042,7 @@ function generateSplitsImage(mode, raceName) {
         }
         var distLabel2 = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
         ctx.font = '500 14px sans-serif';
-        ctx.fillStyle = COL_DIM;
+        ctx.fillStyle = COL_WHITE;
         ctx.textAlign = 'right';
         ctx.letterSpacing = '2px';
         ctx.fillText(distLabel2, timeRight2, ty2 + 60);
@@ -1133,18 +1134,19 @@ function generateSplitsImage(mode, raceName) {
             var flwP = flhP * (logoImg.naturalWidth / logoImg.naturalHeight);
             ctx.font = '500 11px sans-serif';
             ctx.letterSpacing = '3px';
-            ctx.fillStyle = COL_DIM;
-            ctx.textAlign = 'left';
-            ctx.fillText('TRACKED WITH', mx2, footYP + 2);
-            ctx.letterSpacing = '0px';
             var twP = ctx.measureText('TRACKED WITH').width;
-            ctx.drawImage(logoImg, mx2 + twP + 8, footYP - 7, flwP, flhP);
-        } else {
-            ctx.font = '500 11px sans-serif';
-            ctx.fillStyle = COL_DIM;
+            ctx.letterSpacing = '0px';
+            var totalWP = twP + 6 + flwP;
+            var startXP = (W - totalWP) / 2;
+            ctx.fillStyle = COL_WHITE;
             ctx.textAlign = 'left';
             ctx.letterSpacing = '3px';
-            ctx.fillText('TRACKED WITH ROXTRACK', mx2, footYP + 2);
+            ctx.fillText('TRACKED WITH', startXP, footYP + flhP / 2 + 4);
+            ctx.letterSpacing = '0px';
+            ctx.drawImage(logoImg, startXP + twP + 6, footYP, flwP, flhP);
+        } else {
+            ctx.letterSpacing = '3px';
+            drawCenter('TRACKED WITH ROXTRACK', footYP + 12, '500 11px sans-serif', COL_WHITE);
             ctx.letterSpacing = '0px';
         }
     }
