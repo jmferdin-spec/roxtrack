@@ -293,75 +293,30 @@ function renderRace(d, el) {
     if (parsedLaps.length > 0) {
         html += '<div class="seg-grid">';
 
-        // Group laps: run + station paired, roxzones paired together
+        // Each segment paired with its following roxzone
         var li = 0;
         while (li < parsedLaps.length) {
             var lap1 = parsedLaps[li];
-
-            // For runs, find station partner and collect roxzones
-            if (lap1.type === 0) {
-                var detail1 = '';
-                if (lap1.dist > 0) {
-                    detail1 = (lap1.dist >= 1000) ? (lap1.dist / 1000) + 'km' : lap1.dist + 'm';
-                }
+            var cls1 = lap1.type === 0 ? 'run' : lap1.type === 1 ? 'roxzone' : 'station';
+            var detail1 = '';
+            if (lap1.type === 0 && lap1.dist > 0) {
+                detail1 = (lap1.dist >= 1000) ? (lap1.dist / 1000) + 'km' : lap1.dist + 'm';
                 var pace1 = fmtPace(lap1.dur, lap1.dist);
-                if (pace1 && pace1 !== '—') detail1 = detail1 ? detail1 + ' · ' + pace1 : pace1;
+                if (pace1 && pace1 !== '—') detail1 = detail1 + ' · ' + pace1;
+            }
 
-                // Skip roxzones to find station
-                var si = li + 1;
-                while (si < parsedLaps.length && parsedLaps[si].type === 1) { si++; }
-
-                if (si < parsedLaps.length && parsedLaps[si].type === 2) {
-                    // Pair run + station
-                    html += '<div class="seg-row">';
-                    html += buildSegCell(lap1, 'run', detail1);
-                    html += buildSegCell(parsedLaps[si], 'station', '');
-                    html += '</div>';
-                    // Collect all roxzones: between run/station + after station
-                    var roxList = [];
-                    for (var ri = li + 1; ri < si; ri++) { roxList.push(parsedLaps[ri]); }
-                    li = si + 1;
-                    while (li < parsedLaps.length && parsedLaps[li].type === 1) {
-                        roxList.push(parsedLaps[li]);
-                        li++;
-                    }
-                    // Render roxzones paired side by side
-                    for (var rxi = 0; rxi < roxList.length; rxi += 2) {
-                        if (rxi + 1 < roxList.length) {
-                            html += '<div class="seg-row">';
-                            html += buildSegCell(roxList[rxi], 'roxzone', '');
-                            html += buildSegCell(roxList[rxi + 1], 'roxzone', '');
-                            html += '</div>';
-                        } else {
-                            html += '<div class="seg-row single">';
-                            html += buildSegCell(roxList[rxi], 'roxzone', '');
-                            html += '</div>';
-                        }
-                    }
-                } else {
-                    html += '<div class="seg-row single">';
-                    html += buildSegCell(lap1, 'run', detail1);
-                    html += '</div>';
-                    li++;
-                }
-            } else if (lap1.type === 1) {
-                // Standalone roxzone — try to pair with next roxzone
-                var rox2 = (li + 1 < parsedLaps.length && parsedLaps[li + 1].type === 1) ? parsedLaps[li + 1] : null;
-                if (rox2) {
-                    html += '<div class="seg-row">';
-                    html += buildSegCell(lap1, 'roxzone', '');
-                    html += buildSegCell(rox2, 'roxzone', '');
-                    html += '</div>';
-                    li += 2;
-                } else {
-                    html += '<div class="seg-row single">';
-                    html += buildSegCell(lap1, 'roxzone', '');
-                    html += '</div>';
-                    li++;
-                }
+            var next = (li + 1 < parsedLaps.length) ? parsedLaps[li + 1] : null;
+            if (next && next.type === 1) {
+                // Pair this segment with its following roxzone
+                html += '<div class="seg-row">';
+                html += buildSegCell(lap1, cls1, detail1);
+                html += buildSegCell(next, 'roxzone', '');
+                html += '</div>';
+                li += 2;
             } else {
+                // No roxzone follows — single row
                 html += '<div class="seg-row single">';
-                html += buildSegCell(lap1, 'station', '');
+                html += buildSegCell(lap1, cls1, detail1);
                 html += '</div>';
                 li++;
             }
