@@ -430,7 +430,11 @@ function generateShareImage(mode) {
     canvas.height = H;
     var ctx = canvas.getContext('2d');
 
-    ctx.fillStyle = COL_BG;
+    // Subtle dark radial gradient background
+    var bgGrad = ctx.createRadialGradient(W / 2, H * 0.35, 0, W / 2, H * 0.35, H * 0.85);
+    bgGrad.addColorStop(0, '#1a1a24');
+    bgGrad.addColorStop(1, '#08080c');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
 
     function drawCenter(text, y, font, color) {
@@ -632,7 +636,11 @@ function generateSplitsImage(mode, raceName) {
     canvas.height = H;
     var ctx = canvas.getContext('2d');
 
-    ctx.fillStyle = COL_BG;
+    // Subtle dark radial gradient background
+    var bgGrad = ctx.createRadialGradient(W / 2, H * 0.35, 0, W / 2, H * 0.35, H * 0.85);
+    bgGrad.addColorStop(0, '#1a1a24');
+    bgGrad.addColorStop(1, '#08080c');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
 
     function drawCenter(text, y, font, color) {
