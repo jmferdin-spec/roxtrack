@@ -313,8 +313,15 @@ function renderRace(d, el) {
                 html += buildSegCell(next, 'roxzone', '');
                 html += '</div>';
                 li += 2;
+            } else if (next && lap1.type === 0 && next.type === 2) {
+                // No roxzones — pair run + station side by side
+                html += '<div class="seg-row">';
+                html += buildSegCell(lap1, 'run', detail1);
+                html += buildSegCell(next, 'station', '');
+                html += '</div>';
+                li += 2;
             } else {
-                // No roxzone follows — single row
+                // Standalone segment
                 html += '<div class="seg-row single">';
                 html += buildSegCell(lap1, cls1, detail1);
                 html += '</div>';
