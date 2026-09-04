@@ -745,6 +745,29 @@ function generateSplitsImage(mode, raceName) {
         ctx.fillText('TOTAL TIME', mx, titleY + 128);
         ctx.letterSpacing = '0px';
 
+        // ── Stats on the right side ──
+        var statsX = timeRight;
+        var statsY = titleY + 20;
+        var statsGap = 62;
+        var statsItems = [
+            { val: shareData.run, label: 'RUNS', color: COL_RUN },
+            { val: shareData.station, label: 'STATIONS', color: COL_STATION },
+            { val: shareData.avgPace, label: 'AVG PACE', color: COL_PACE },
+            { val: avgHr > 0 ? String(shareData.avgHr) : '—', label: 'AVG HR', color: COL_HR }
+        ];
+        for (var sti = 0; sti < statsItems.length; sti++) {
+            var sty = statsY + sti * statsGap;
+            ctx.font = '700 32px sans-serif';
+            ctx.fillStyle = statsItems[sti].color;
+            ctx.textAlign = 'right';
+            ctx.fillText(statsItems[sti].val, statsX, sty);
+            ctx.font = '500 13px sans-serif';
+            ctx.fillStyle = COL_DIM;
+            ctx.letterSpacing = '2px';
+            ctx.fillText(statsItems[sti].label, statsX, sty + 18);
+            ctx.letterSpacing = '0px';
+        }
+
         // ── Segment list by round ──
         var listTop = titleY + 170;
         var listBot = H - 90;
@@ -863,6 +886,29 @@ function generateSplitsImage(mode, raceName) {
         ctx.letterSpacing = '4px';
         ctx.fillText('TOTAL TIME', mx2, ty2 + 92);
         ctx.letterSpacing = '0px';
+
+        // ── Stats on the right side ──
+        var statsX2 = timeRight2;
+        var statsY2 = ty2;
+        var statsGap2 = 48;
+        var statsItems2 = [
+            { val: shareData.run, label: 'RUNS', color: COL_RUN },
+            { val: shareData.station, label: 'STATIONS', color: COL_STATION },
+            { val: shareData.avgPace, label: 'AVG PACE', color: COL_PACE },
+            { val: avgHr > 0 ? String(shareData.avgHr) : '—', label: 'AVG HR', color: COL_HR }
+        ];
+        for (var sti2 = 0; sti2 < statsItems2.length; sti2++) {
+            var sty2 = statsY2 + sti2 * statsGap2;
+            ctx.font = '700 24px sans-serif';
+            ctx.fillStyle = statsItems2[sti2].color;
+            ctx.textAlign = 'right';
+            ctx.fillText(statsItems2[sti2].val, statsX2, sty2);
+            ctx.font = '500 11px sans-serif';
+            ctx.fillStyle = COL_DIM;
+            ctx.letterSpacing = '2px';
+            ctx.fillText(statsItems2[sti2].label, statsX2, sty2 + 15);
+            ctx.letterSpacing = '0px';
+        }
 
         // Segment list
         var listTop2 = ty2 + 120;
