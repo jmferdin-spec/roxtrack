@@ -293,22 +293,12 @@ function renderRace(d, el) {
     if (parsedLaps.length > 0) {
         html += '<div class="seg-grid">';
 
-        // Group laps into pairs: run + station side by side
-        // RoxZones always render as single rows for consistency
+        // Group laps: run + station paired, roxzones paired together
         var li = 0;
         while (li < parsedLaps.length) {
             var lap1 = parsedLaps[li];
 
-            // RoxZones always get their own single row
-            if (lap1.type === 1) {
-                html += '<div class="seg-row single">';
-                html += buildSegCell(lap1, 'roxzone', '');
-                html += '</div>';
-                li++;
-                continue;
-            }
-
-            // For runs, look ahead past any roxzones to find the station partner
+            // For runs, find station partner and collect roxzones
             if (lap1.type === 0) {
                 var detail1 = '';
                 if (lap1.dist > 0) {
@@ -322,27 +312,54 @@ function renderRace(d, el) {
                 while (si < parsedLaps.length && parsedLaps[si].type === 1) { si++; }
 
                 if (si < parsedLaps.length && parsedLaps[si].type === 2) {
-                    // Pair run + station, render roxzones between them as single rows
+                    // Pair run + station
                     html += '<div class="seg-row">';
                     html += buildSegCell(lap1, 'run', detail1);
                     html += buildSegCell(parsedLaps[si], 'station', '');
                     html += '</div>';
-                    // Now render any roxzones that were between run and station
-                    for (var ri = li + 1; ri < si; ri++) {
-                        html += '<div class="seg-row single">';
-                        html += buildSegCell(parsedLaps[ri], 'roxzone', '');
-                        html += '</div>';
-                    }
+                    // Collect all roxzones: between run/station + after station
+                    var roxList = [];
+                    for (var ri = li + 1; ri < si; ri++) { roxList.push(parsedLaps[ri]); }
                     li = si + 1;
+                    while (li < parsedLaps.length && parsedLaps[li].type === 1) {
+                        roxList.push(parsedLaps[li]);
+                        li++;
+                    }
+                    // Render roxzones paired side by side
+                    for (var rxi = 0; rxi < roxList.length; rxi += 2) {
+                        if (rxi + 1 < roxList.length) {
+                            html += '<div class="seg-row">';
+                            html += buildSegCell(roxList[rxi], 'roxzone', '');
+                            html += buildSegCell(roxList[rxi + 1], 'roxzone', '');
+                            html += '</div>';
+                        } else {
+                            html += '<div class="seg-row single">';
+                            html += buildSegCell(roxList[rxi], 'roxzone', '');
+                            html += '</div>';
+                        }
+                    }
                 } else {
-                    // No station partner found, render run alone
                     html += '<div class="seg-row single">';
                     html += buildSegCell(lap1, 'run', detail1);
                     html += '</div>';
                     li++;
                 }
+            } else if (lap1.type === 1) {
+                // Standalone roxzone — try to pair with next roxzone
+                var rox2 = (li + 1 < parsedLaps.length && parsedLaps[li + 1].type === 1) ? parsedLaps[li + 1] : null;
+                if (rox2) {
+                    html += '<div class="seg-row">';
+                    html += buildSegCell(lap1, 'roxzone', '');
+                    html += buildSegCell(rox2, 'roxzone', '');
+                    html += '</div>';
+                    li += 2;
+                } else {
+                    html += '<div class="seg-row single">';
+                    html += buildSegCell(lap1, 'roxzone', '');
+                    html += '</div>';
+                    li++;
+                }
             } else {
-                // Station without a run partner
                 html += '<div class="seg-row single">';
                 html += buildSegCell(lap1, 'station', '');
                 html += '</div>';
@@ -495,16 +512,19 @@ function generateShareImage(mode) {
         items.push({ val: avgHr > 0 ? String(shareData.avgHr) : '—', label: 'AVG HR', color: COL_HR });
 
         var cellW = sw / items.length;
+        var valSize = Math.round(stripH * 0.38);
+        var lblSize = Math.round(stripH * 0.16);
+        var lblOff = Math.round(stripH * 0.28);
         for (var i = 0; i < items.length; i++) {
             var cx = mx + cellW * i + cellW / 2;
-            ctx.font = '700 32px sans-serif';
+            ctx.font = '700 ' + valSize + 'px sans-serif';
             ctx.fillStyle = items[i].color;
             ctx.textAlign = 'center';
             ctx.fillText(items[i].val, cx, y + stripH / 2 - 2);
-            ctx.font = '500 14px sans-serif';
+            ctx.font = '500 ' + lblSize + 'px sans-serif';
             ctx.fillStyle = COL_DIM;
             ctx.letterSpacing = '2px';
-            ctx.fillText(items[i].label, cx, y + stripH / 2 + 22);
+            ctx.fillText(items[i].label, cx, y + stripH / 2 + lblOff);
             ctx.letterSpacing = '0px';
 
             // Divider
@@ -554,34 +574,35 @@ function generateShareImage(mode) {
     var avgHr = shareData.avgHr;
 
     if (isStory) {
-        // ── STORY 1080x1920 ──
-        var cy = 100;
-        ctx.letterSpacing = '10px';
-        drawCenter('ROXTRACK', cy, '700 36px sans-serif', COL_GOLD);
+        // ── STORY 1080x1920 — totals centered ──
+        var midY = H / 2;
+
+        // Brand
+        ctx.letterSpacing = '14px';
+        drawCenter('ROXTRACK', midY - 280, '700 52px sans-serif', COL_GOLD);
         ctx.letterSpacing = '0px';
 
+        // Date
         if (shareData.date) {
-            cy += 36;
-            drawCenter(shareData.date, cy, '400 22px sans-serif', COL_DIM);
+            drawCenter(shareData.date, midY - 230, '400 26px sans-serif', COL_DIM);
         }
 
+        // Race name
         if (raceName) {
-            cy += 50;
-            ctx.letterSpacing = '2px';
-            drawCenter(raceName.toUpperCase(), cy, '700 32px sans-serif', COL_WHITE);
+            ctx.letterSpacing = '4px';
+            drawCenter(raceName.toUpperCase(), midY - 180, '700 40px sans-serif', COL_WHITE);
             ctx.letterSpacing = '0px';
         }
 
-        // Total time
-        cy += 50;
-        drawCenter(shareData.total, cy + 80, '800 120px sans-serif', COL_WHITE);
+        // Big total time
+        drawCenter(shareData.total, midY + 10, '800 200px sans-serif', COL_WHITE);
         if (shareData.pct !== 100) {
-            drawCenter(shareData.pct + '% Distance', cy + 110, '400 20px sans-serif', COL_DIM);
+            drawCenter(shareData.pct + '% Distance', midY + 50, '400 24px sans-serif', COL_DIM);
         }
-        drawCenter('TOTAL TIME', cy + 130, '500 16px sans-serif', COL_MUTED);
+        drawCenter('TOTAL TIME', midY + 80, '500 20px sans-serif', COL_MUTED);
 
         // Stat strip
-        drawStatStrip(cy + 170, 70);
+        drawStatStrip(midY + 130, 90);
 
         // Footer
         ctx.letterSpacing = '4px';
@@ -589,39 +610,35 @@ function generateShareImage(mode) {
         ctx.letterSpacing = '0px';
 
     } else {
-        // ── POST 1080x1080 ──
-        // Brand + date header
-        ctx.font = '700 32px sans-serif';
-        ctx.fillStyle = COL_GOLD;
-        ctx.textAlign = 'left';
-        ctx.letterSpacing = '8px';
-        ctx.fillText('ROXTRACK', 50, 60);
+        // ── POST 1080x1080 — totals centered ──
+        var midY2 = H / 2;
+
+        // Brand
+        ctx.letterSpacing = '14px';
+        drawCenter('ROXTRACK', midY2 - 220, '700 48px sans-serif', COL_GOLD);
         ctx.letterSpacing = '0px';
 
+        // Date
         if (shareData.date) {
-            ctx.font = '400 20px sans-serif';
-            ctx.fillStyle = COL_DIM;
-            ctx.textAlign = 'right';
-            ctx.fillText(shareData.date, W - 50, 60);
+            drawCenter(shareData.date, midY2 - 175, '400 22px sans-serif', COL_DIM);
         }
 
-        var cy2 = 90;
+        // Race name
         if (raceName) {
-            cy2 += 10;
-            ctx.letterSpacing = '2px';
-            drawCenter(raceName.toUpperCase(), cy2, '700 26px sans-serif', COL_WHITE);
+            ctx.letterSpacing = '3px';
+            drawCenter(raceName.toUpperCase(), midY2 - 130, '700 34px sans-serif', COL_WHITE);
             ctx.letterSpacing = '0px';
         }
 
-        // Total time
-        drawCenter(shareData.total, cy2 + 80, '800 100px sans-serif', COL_WHITE);
+        // Big total time
+        drawCenter(shareData.total, midY2 + 30, '800 160px sans-serif', COL_WHITE);
         if (shareData.pct !== 100) {
-            drawCenter(shareData.pct + '% Distance', cy2 + 108, '400 18px sans-serif', COL_DIM);
+            drawCenter(shareData.pct + '% Distance', midY2 + 65, '400 22px sans-serif', COL_DIM);
         }
-        drawCenter('TOTAL TIME', cy2 + 124, '500 14px sans-serif', COL_MUTED);
+        drawCenter('TOTAL TIME', midY2 + 90, '500 18px sans-serif', COL_MUTED);
 
         // Stat strip
-        drawStatStrip(cy2 + 150, 60);
+        drawStatStrip(midY2 + 130, 80);
 
         // Footer
         ctx.letterSpacing = '4px';
