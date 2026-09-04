@@ -435,41 +435,13 @@ function generateShareImage(mode) {
     canvas.height = H;
     var ctx = canvas.getContext('2d');
 
-    // Gritty athletic background
-    ctx.fillStyle = '#0e0e12';
+    // Gray gradient background
+    var bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+    bgGrad.addColorStop(0, '#2a2a2e');
+    bgGrad.addColorStop(0.5, '#1a1a1e');
+    bgGrad.addColorStop(1, '#101014');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
-
-    // Noise/grain texture
-    var noiseData = ctx.createImageData(W, H);
-    var nd = noiseData.data;
-    for (var ni = 0; ni < nd.length; ni += 4) {
-        var v = Math.random() * 28 | 0;
-        nd[ni] = v; nd[ni + 1] = v; nd[ni + 2] = v; nd[ni + 3] = 18;
-    }
-    ctx.putImageData(noiseData, 0, 0);
-
-    // Dark radial vignette
-    var vig = ctx.createRadialGradient(W / 2, H * 0.4, W * 0.15, W / 2, H * 0.4, H * 0.9);
-    vig.addColorStop(0, 'rgba(0,0,0,0)');
-    vig.addColorStop(0.6, 'rgba(0,0,0,0.25)');
-    vig.addColorStop(1, 'rgba(0,0,0,0.7)');
-    ctx.fillStyle = vig;
-    ctx.fillRect(0, 0, W, H);
-
-    // Scratchy diagonal streaks
-    ctx.globalAlpha = 0.04;
-    ctx.strokeStyle = '#ffffff';
-    for (var si = 0; si < 60; si++) {
-        var sx = Math.random() * W;
-        var syy = Math.random() * H;
-        var slen = 40 + Math.random() * 180;
-        ctx.lineWidth = Math.random() * 1.5;
-        ctx.beginPath();
-        ctx.moveTo(sx, syy);
-        ctx.lineTo(sx + slen * 0.7, syy + slen);
-        ctx.stroke();
-    }
-    ctx.globalAlpha = 1.0;
 
     function drawCenter(text, y, font, color) {
         ctx.font = font;
@@ -682,41 +654,13 @@ function generateSplitsImage(mode, raceName) {
     canvas.height = H;
     var ctx = canvas.getContext('2d');
 
-    // Gritty athletic background
-    ctx.fillStyle = '#0e0e12';
+    // Gray gradient background
+    var bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+    bgGrad.addColorStop(0, '#2a2a2e');
+    bgGrad.addColorStop(0.5, '#1a1a1e');
+    bgGrad.addColorStop(1, '#101014');
+    ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
-
-    // Noise/grain texture
-    var noiseData = ctx.createImageData(W, H);
-    var nd = noiseData.data;
-    for (var ni = 0; ni < nd.length; ni += 4) {
-        var v = Math.random() * 28 | 0;
-        nd[ni] = v; nd[ni + 1] = v; nd[ni + 2] = v; nd[ni + 3] = 18;
-    }
-    ctx.putImageData(noiseData, 0, 0);
-
-    // Dark radial vignette
-    var vig = ctx.createRadialGradient(W / 2, H * 0.4, W * 0.15, W / 2, H * 0.4, H * 0.9);
-    vig.addColorStop(0, 'rgba(0,0,0,0)');
-    vig.addColorStop(0.6, 'rgba(0,0,0,0.25)');
-    vig.addColorStop(1, 'rgba(0,0,0,0.7)');
-    ctx.fillStyle = vig;
-    ctx.fillRect(0, 0, W, H);
-
-    // Scratchy diagonal streaks
-    ctx.globalAlpha = 0.04;
-    ctx.strokeStyle = '#ffffff';
-    for (var si = 0; si < 60; si++) {
-        var sx = Math.random() * W;
-        var syy = Math.random() * H;
-        var slen = 40 + Math.random() * 180;
-        ctx.lineWidth = Math.random() * 1.5;
-        ctx.beginPath();
-        ctx.moveTo(sx, syy);
-        ctx.lineTo(sx + slen * 0.7, syy + slen);
-        ctx.stroke();
-    }
-    ctx.globalAlpha = 1.0;
 
     function drawCenter(text, y, font, color) {
         ctx.font = font;
@@ -948,11 +892,11 @@ function generateSplitsImage(mode, raceName) {
         var rowH2 = 26;
         var barH2 = 2;
         var segListH2 = totalRows2 * rowH2 + (rounds.length - 1) * roundGap2;
-        var baseY2 = Math.round((H - 211 - segListH2) / 2);
+        var baseY2 = Math.round((H - 245 - segListH2) / 2);
         while (baseY2 < 30 && rowH2 > 20) {
             rowH2--;
             segListH2 = totalRows2 * rowH2 + (rounds.length - 1) * roundGap2;
-            baseY2 = Math.round((H - 211 - segListH2) / 2);
+            baseY2 = Math.round((H - 245 - segListH2) / 2);
         }
         if (baseY2 < 20) baseY2 = 20;
 
@@ -960,7 +904,7 @@ function generateSplitsImage(mode, raceName) {
         if (logoImg.complete && logoImg.naturalWidth > 0) {
             var lhSP = 65;
             var lwSP = lhSP * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, mx2, baseY2 - 52, lwSP, lhSP);
+            ctx.drawImage(logoImg, mx2, baseY2 - 5, lwSP, lhSP);
         } else {
             ctx.font = '700 32px sans-serif';
             ctx.fillStyle = COL_GOLD;
@@ -971,7 +915,7 @@ function generateSplitsImage(mode, raceName) {
         }
 
         // Race name + total
-        var ty2 = baseY2 + 55;
+        var ty2 = baseY2 + 68;
         if (raceName) {
             ctx.font = '800 34px sans-serif';
             ctx.fillStyle = COL_WHITE;
