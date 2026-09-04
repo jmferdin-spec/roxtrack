@@ -745,28 +745,6 @@ function generateSplitsImage(mode, raceName) {
         ctx.fillText('TOTAL TIME', mx, titleY + 128);
         ctx.letterSpacing = '0px';
 
-        // ── Runs/Stations box (top-right area) ──
-        var boxX = W - mx - 240;
-        var boxY = titleY + 10;
-        ctx.strokeStyle = COL_MUTED;
-        ctx.lineWidth = 1;
-        ctx.strokeRect(boxX, boxY, 240, 80);
-
-        ctx.font = '700 28px sans-serif';
-        ctx.fillStyle = COL_GOLD;
-        ctx.textAlign = 'center';
-        ctx.fillText(numRuns + ' RUNS', boxX + 120, boxY + 32);
-        ctx.fillText(numStations + ' STATIONS', boxX + 120, boxY + 64);
-
-        // Tagline below box
-        ctx.font = '500 14px sans-serif';
-        ctx.fillStyle = COL_DIM;
-        ctx.textAlign = 'center';
-        ctx.letterSpacing = '3px';
-        ctx.fillText('SAME SPORT', boxX + 120, boxY + 108);
-        ctx.fillText('DIFFERENT HUMAN', boxX + 120, boxY + 126);
-        ctx.letterSpacing = '0px';
-
         // ── Segment list by round ──
         var listTop = titleY + 170;
         var listBot = H - 90;
@@ -815,20 +793,24 @@ function generateSplitsImage(mode, raceName) {
             }
 
             sy += round.length * rowH + 8;
+
+            // Divider line between rounds
+            if (ri < rounds.length - 1) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(contentLeft, sy - 4);
+                ctx.lineTo(timeRight, sy - 4);
+                ctx.stroke();
+            }
         }
 
         // ── Footer ──
-        ctx.font = '700 24px sans-serif';
-        ctx.fillStyle = COL_GOLD;
-        ctx.textAlign = 'left';
-        ctx.letterSpacing = '8px';
-        ctx.fillText('ROXTRACK', mx, H - 50);
-        ctx.letterSpacing = '0px';
-
-        ctx.font = '400 14px sans-serif';
+        ctx.font = '400 16px sans-serif';
         ctx.fillStyle = COL_DIM;
-        ctx.letterSpacing = '3px';
-        ctx.fillText('BUILT FOR HYROX ATHLETES', mx, H - 28);
+        ctx.textAlign = 'left';
+        ctx.letterSpacing = '4px';
+        ctx.fillText('BUILT FOR HYROX ATHLETES', mx, H - 40);
         ctx.letterSpacing = '0px';
 
     } else {
@@ -845,14 +827,20 @@ function generateSplitsImage(mode, raceName) {
         ctx.fillStyle = COL_GOLD;
         ctx.textAlign = 'left';
         ctx.letterSpacing = '8px';
-        ctx.fillText('ROXTRACK', mx2, 55);
+        ctx.fillText('ROXTRACK', mx2, 50);
+        ctx.letterSpacing = '0px';
+
+        ctx.font = '400 13px sans-serif';
+        ctx.fillStyle = COL_DIM;
+        ctx.letterSpacing = '3px';
+        ctx.fillText('BUILT FOR HYROX ATHLETES', mx2, 72);
         ctx.letterSpacing = '0px';
 
         if (shareData.date) {
             ctx.font = '500 18px sans-serif';
             ctx.fillStyle = COL_MUTED;
             ctx.textAlign = 'right';
-            ctx.fillText(shareData.date.toUpperCase(), timeRight2, 55);
+            ctx.fillText(shareData.date.toUpperCase(), timeRight2, 50);
         }
 
         // Race name + total
@@ -883,7 +871,7 @@ function generateSplitsImage(mode, raceName) {
         var rowH2 = Math.floor((listBot2 - listTop2) / totalRows2);
         if (rowH2 > 32) rowH2 = 32;
         if (rowH2 < 20) rowH2 = 20;
-        var barH2 = 5;
+        var barH2 = 2;
 
         var sy2 = listTop2;
         for (var ri2 = 0; ri2 < rounds.length; ri2++) {
@@ -919,15 +907,17 @@ function generateSplitsImage(mode, raceName) {
             }
 
             sy2 += round2.length * rowH2 + 4;
-        }
 
-        // Footer
-        ctx.font = '700 18px sans-serif';
-        ctx.fillStyle = COL_GOLD;
-        ctx.textAlign = 'center';
-        ctx.letterSpacing = '6px';
-        ctx.fillText('ROXTRACK', W / 2, H - 22);
-        ctx.letterSpacing = '0px';
+            // Divider line between rounds
+            if (ri2 < rounds.length - 1) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(contentLeft2, sy2 - 2);
+                ctx.lineTo(timeRight2, sy2 - 2);
+                ctx.stroke();
+            }
+        }
     }
 
     canvas.toBlob(function(blob) {
