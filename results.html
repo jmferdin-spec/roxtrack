@@ -430,12 +430,41 @@ function generateShareImage(mode) {
     canvas.height = H;
     var ctx = canvas.getContext('2d');
 
-    // Subtle dark radial gradient background
-    var bgGrad = ctx.createRadialGradient(W / 2, H * 0.35, 0, W / 2, H * 0.35, H * 0.85);
-    bgGrad.addColorStop(0, '#1a1a24');
-    bgGrad.addColorStop(1, '#08080c');
-    ctx.fillStyle = bgGrad;
+    // Gritty athletic background
+    ctx.fillStyle = '#0e0e12';
     ctx.fillRect(0, 0, W, H);
+
+    // Noise/grain texture
+    var noiseData = ctx.createImageData(W, H);
+    var nd = noiseData.data;
+    for (var ni = 0; ni < nd.length; ni += 4) {
+        var v = Math.random() * 28 | 0;
+        nd[ni] = v; nd[ni + 1] = v; nd[ni + 2] = v; nd[ni + 3] = 18;
+    }
+    ctx.putImageData(noiseData, 0, 0);
+
+    // Dark radial vignette
+    var vig = ctx.createRadialGradient(W / 2, H * 0.4, W * 0.15, W / 2, H * 0.4, H * 0.9);
+    vig.addColorStop(0, 'rgba(0,0,0,0)');
+    vig.addColorStop(0.6, 'rgba(0,0,0,0.25)');
+    vig.addColorStop(1, 'rgba(0,0,0,0.7)');
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, W, H);
+
+    // Scratchy diagonal streaks
+    ctx.globalAlpha = 0.04;
+    ctx.strokeStyle = '#ffffff';
+    for (var si = 0; si < 60; si++) {
+        var sx = Math.random() * W;
+        var syy = Math.random() * H;
+        var slen = 40 + Math.random() * 180;
+        ctx.lineWidth = Math.random() * 1.5;
+        ctx.beginPath();
+        ctx.moveTo(sx, syy);
+        ctx.lineTo(sx + slen * 0.7, syy + slen);
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1.0;
 
     function drawCenter(text, y, font, color) {
         ctx.font = font;
@@ -636,12 +665,41 @@ function generateSplitsImage(mode, raceName) {
     canvas.height = H;
     var ctx = canvas.getContext('2d');
 
-    // Subtle dark radial gradient background
-    var bgGrad = ctx.createRadialGradient(W / 2, H * 0.35, 0, W / 2, H * 0.35, H * 0.85);
-    bgGrad.addColorStop(0, '#1a1a24');
-    bgGrad.addColorStop(1, '#08080c');
-    ctx.fillStyle = bgGrad;
+    // Gritty athletic background
+    ctx.fillStyle = '#0e0e12';
     ctx.fillRect(0, 0, W, H);
+
+    // Noise/grain texture
+    var noiseData = ctx.createImageData(W, H);
+    var nd = noiseData.data;
+    for (var ni = 0; ni < nd.length; ni += 4) {
+        var v = Math.random() * 28 | 0;
+        nd[ni] = v; nd[ni + 1] = v; nd[ni + 2] = v; nd[ni + 3] = 18;
+    }
+    ctx.putImageData(noiseData, 0, 0);
+
+    // Dark radial vignette
+    var vig = ctx.createRadialGradient(W / 2, H * 0.4, W * 0.15, W / 2, H * 0.4, H * 0.9);
+    vig.addColorStop(0, 'rgba(0,0,0,0)');
+    vig.addColorStop(0.6, 'rgba(0,0,0,0.25)');
+    vig.addColorStop(1, 'rgba(0,0,0,0.7)');
+    ctx.fillStyle = vig;
+    ctx.fillRect(0, 0, W, H);
+
+    // Scratchy diagonal streaks
+    ctx.globalAlpha = 0.04;
+    ctx.strokeStyle = '#ffffff';
+    for (var si = 0; si < 60; si++) {
+        var sx = Math.random() * W;
+        var syy = Math.random() * H;
+        var slen = 40 + Math.random() * 180;
+        ctx.lineWidth = Math.random() * 1.5;
+        ctx.beginPath();
+        ctx.moveTo(sx, syy);
+        ctx.lineTo(sx + slen * 0.7, syy + slen);
+        ctx.stroke();
+    }
+    ctx.globalAlpha = 1.0;
 
     function drawCenter(text, y, font, color) {
         ctx.font = font;
