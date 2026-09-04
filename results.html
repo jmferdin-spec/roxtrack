@@ -643,6 +643,7 @@ function generateSplitsImage(mode, raceName) {
     }
 
     var laps = shareData.laps;
+    var avgHr = shareData.avgHr;
     var maxDur = 0;
     for (var mi = 0; mi < laps.length; mi++) {
         if (laps[mi].dur > maxDur) maxDur = laps[mi].dur;
