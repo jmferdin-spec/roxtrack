@@ -652,131 +652,281 @@ function generateSplitsImage(mode, raceName) {
     var marginX = 60;
     var barMaxW = W - marginX * 2;
 
+    // Group laps into rounds (each round starts with a run)
+    var rounds = [];
+    var curRound = null;
+    for (var gi = 0; gi < laps.length; gi++) {
+        if (laps[gi].type === 0) {
+            if (curRound) rounds.push(curRound);
+            curRound = [laps[gi]];
+        } else if (curRound) {
+            curRound.push(laps[gi]);
+        } else {
+            curRound = [laps[gi]];
+        }
+    }
+    if (curRound) rounds.push(curRound);
+
+    // Count runs/stations for header
+    var numRuns = 0, numStations = 0;
+    for (var ci = 0; ci < laps.length; ci++) {
+        if (laps[ci].type === 0) numRuns++;
+        if (laps[ci].type === 2) numStations++;
+    }
+
     if (isStory) {
-        var cy = 100;
-        ctx.letterSpacing = '10px';
-        drawCenter('ROXTRACK', cy, '700 36px sans-serif', COL_GOLD);
-        ctx.letterSpacing = '0px';
-        cy += 28;
-        ctx.letterSpacing = '4px';
-        drawCenter('SPLITS', cy, '500 18px sans-serif', COL_DIM);
+        // ── STORY 1080x1920 — branded splits ──
+        var mx = 60;
+        var contentLeft = 130;
+        var barLeft = 300;
+        var barRight = W - mx - 100;
+        var barW_max = barRight - barLeft;
+        var timeRight = W - mx;
+
+        // ── Header ──
+        ctx.font = '700 40px sans-serif';
+        ctx.fillStyle = COL_GOLD;
+        ctx.textAlign = 'left';
+        ctx.letterSpacing = '12px';
+        ctx.fillText('ROXTRACK', mx, 70);
         ctx.letterSpacing = '0px';
 
+        ctx.font = '400 16px sans-serif';
+        ctx.fillStyle = COL_DIM;
+        ctx.letterSpacing = '4px';
+        ctx.fillText('TRACK  |  TRAIN  |  RACE', mx, 95);
+        ctx.letterSpacing = '0px';
+
+        // Date top-right
         if (shareData.date) {
-            cy += 38;
-            drawCenter(shareData.date, cy, '400 20px sans-serif', COL_DIM);
-        }
-
-        if (raceName) {
-            cy += 50;
-            ctx.letterSpacing = '2px';
-            drawCenter(raceName.toUpperCase(), cy, '700 28px sans-serif', COL_WHITE);
-            ctx.letterSpacing = '0px';
-        }
-
-        cy += 50;
-        drawCenter(shareData.total, cy + 70, '800 90px sans-serif', COL_WHITE);
-        drawCenter('TOTAL TIME', cy + 100, '500 14px sans-serif', COL_MUTED);
-
-        var barTop = cy + 140;
-        var barH = 6;
-        var availH = H - barTop - 80;
-        var rowH = Math.floor(availH / laps.length);
-        if (rowH > 56) rowH = 56;
-        if (rowH < 34) rowH = 34;
-
-        for (var i = 0; i < laps.length; i++) {
-            var lap = laps[i];
-            var y = barTop + i * rowH;
-            var col = segColor(lap.type);
-            var barW = Math.max(4, Math.round(barMaxW * lap.dur / maxDur));
-
-            ctx.font = '600 16px sans-serif';
-            ctx.fillStyle = col;
-            ctx.textAlign = 'left';
-            ctx.fillText(lap.name, marginX, y);
-
-            ctx.font = '700 18px sans-serif';
-            ctx.fillStyle = COL_WHITE;
+            ctx.font = '500 22px sans-serif';
+            ctx.fillStyle = COL_MUTED;
             ctx.textAlign = 'right';
-            ctx.fillText(fmt(lap.dur), W - marginX, y);
-
-            var barY = y + 6;
-            ctx.fillStyle = 'rgba(255,255,255,0.04)';
-            ctx.fillRect(marginX, barY, barMaxW, barH);
-            ctx.fillStyle = col;
-            ctx.fillRect(marginX, barY, barW, barH);
-
-            if (lap.hr > 0) {
-                ctx.font = '500 12px sans-serif';
-                ctx.fillStyle = 'rgba(239,68,68,0.6)';
-                ctx.textAlign = 'right';
-                ctx.fillText('♥ ' + lap.hr, W - marginX, y + barH + 18);
-            }
+            ctx.fillText(shareData.date.toUpperCase(), timeRight, 70);
         }
 
+        // ── Race name + total time ──
+        var titleY = 160;
+        if (raceName) {
+            ctx.font = '800 56px sans-serif';
+            ctx.fillStyle = COL_WHITE;
+            ctx.textAlign = 'left';
+            ctx.letterSpacing = '6px';
+            ctx.fillText(raceName.toUpperCase(), mx, titleY);
+            ctx.letterSpacing = '0px';
+            titleY += 36;
+        } else {
+            ctx.font = '800 56px sans-serif';
+            ctx.fillStyle = COL_WHITE;
+            ctx.textAlign = 'left';
+            ctx.letterSpacing = '6px';
+            ctx.fillText('HYROX', mx, titleY);
+            ctx.letterSpacing = '0px';
+            titleY += 36;
+        }
+
+        ctx.font = '500 22px sans-serif';
+        ctx.fillStyle = COL_MUTED;
+        ctx.textAlign = 'left';
         ctx.letterSpacing = '4px';
-        drawCenter('ROXTRACK', H - 50, '500 14px sans-serif', '#252525');
+        ctx.fillText('RACE RESULT', mx, titleY);
+        ctx.letterSpacing = '0px';
+
+        // Big total time
+        titleY += 20;
+        ctx.font = '800 120px sans-serif';
+        ctx.fillStyle = COL_GOLD;
+        ctx.textAlign = 'left';
+        ctx.fillText(shareData.total, mx, titleY + 100);
+
+        ctx.font = '500 18px sans-serif';
+        ctx.fillStyle = COL_MUTED;
+        ctx.letterSpacing = '6px';
+        ctx.fillText('TOTAL TIME', mx, titleY + 128);
+        ctx.letterSpacing = '0px';
+
+        // ── Runs/Stations box (top-right area) ──
+        var boxX = W - mx - 240;
+        var boxY = titleY + 10;
+        ctx.strokeStyle = COL_MUTED;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(boxX, boxY, 240, 80);
+
+        ctx.font = '700 28px sans-serif';
+        ctx.fillStyle = COL_GOLD;
+        ctx.textAlign = 'center';
+        ctx.fillText(numRuns + ' RUNS', boxX + 120, boxY + 32);
+        ctx.fillText(numStations + ' STATIONS', boxX + 120, boxY + 64);
+
+        // Tagline below box
+        ctx.font = '500 14px sans-serif';
+        ctx.fillStyle = COL_DIM;
+        ctx.textAlign = 'center';
+        ctx.letterSpacing = '3px';
+        ctx.fillText('SAME SPORT', boxX + 120, boxY + 108);
+        ctx.fillText('DIFFERENT HUMAN', boxX + 120, boxY + 126);
+        ctx.letterSpacing = '0px';
+
+        // ── Segment list by round ──
+        var listTop = titleY + 170;
+        var listBot = H - 90;
+        var totalRows = laps.length;
+        var rowH = Math.floor((listBot - listTop) / totalRows);
+        if (rowH > 42) rowH = 42;
+        if (rowH < 28) rowH = 28;
+        var barH = 8;
+
+        var sy = listTop;
+        for (var ri = 0; ri < rounds.length; ri++) {
+            var round = rounds[ri];
+            var roundMidY = sy + (round.length * rowH) / 2;
+
+            // Round number on the left
+            ctx.font = '700 36px sans-serif';
+            ctx.fillStyle = COL_MUTED;
+            ctx.textAlign = 'right';
+            ctx.fillText(String(ri + 1).padStart(2, '0'), contentLeft - 20, roundMidY + 10);
+
+            // Draw each segment in this round
+            for (var si = 0; si < round.length; si++) {
+                var seg = round[si];
+                var rowY = sy + si * rowH;
+                var col = segColor(seg.type);
+                var bw = Math.max(4, Math.round(barW_max * seg.dur / maxDur));
+
+                // Segment name
+                ctx.font = '600 20px sans-serif';
+                ctx.fillStyle = col;
+                ctx.textAlign = 'left';
+                ctx.fillText(seg.name, contentLeft, rowY + rowH / 2 + 2);
+
+                // Proportional bar
+                var barY = rowY + rowH / 2 + 8;
+                ctx.fillStyle = 'rgba(255,255,255,0.04)';
+                ctx.fillRect(contentLeft, barY, barW_max, barH);
+                ctx.fillStyle = col;
+                ctx.fillRect(contentLeft, barY, bw, barH);
+
+                // Time
+                ctx.font = '700 20px sans-serif';
+                ctx.fillStyle = COL_WHITE;
+                ctx.textAlign = 'right';
+                ctx.fillText(fmt(seg.dur), timeRight, rowY + rowH / 2 + 2);
+            }
+
+            sy += round.length * rowH + 8;
+        }
+
+        // ── Footer ──
+        ctx.font = '700 24px sans-serif';
+        ctx.fillStyle = COL_GOLD;
+        ctx.textAlign = 'left';
+        ctx.letterSpacing = '8px';
+        ctx.fillText('ROXTRACK', mx, H - 50);
+        ctx.letterSpacing = '0px';
+
+        ctx.font = '400 14px sans-serif';
+        ctx.fillStyle = COL_DIM;
+        ctx.letterSpacing = '3px';
+        ctx.fillText('BUILT FOR HYROX ATHLETES', mx, H - 28);
         ctx.letterSpacing = '0px';
 
     } else {
+        // ── POST 1080x1080 — compact branded splits ──
+        var mx2 = 50;
+        var contentLeft2 = 110;
+        var barLeft2 = 260;
+        var barRight2 = W - mx2 - 80;
+        var barW_max2 = barRight2 - barLeft2;
+        var timeRight2 = W - mx2;
+
+        // Header
         ctx.font = '700 32px sans-serif';
         ctx.fillStyle = COL_GOLD;
         ctx.textAlign = 'left';
         ctx.letterSpacing = '8px';
-        ctx.fillText('ROXTRACK', 50, 60);
+        ctx.fillText('ROXTRACK', mx2, 55);
         ctx.letterSpacing = '0px';
 
         if (shareData.date) {
-            ctx.font = '400 20px sans-serif';
-            ctx.fillStyle = COL_DIM;
+            ctx.font = '500 18px sans-serif';
+            ctx.fillStyle = COL_MUTED;
             ctx.textAlign = 'right';
-            ctx.fillText(shareData.date, W - 50, 60);
+            ctx.fillText(shareData.date.toUpperCase(), timeRight2, 55);
         }
 
-        var cy2 = 90;
+        // Race name + total
+        var ty2 = 100;
         if (raceName) {
-            cy2 += 10;
-            ctx.letterSpacing = '2px';
-            drawCenter(raceName.toUpperCase(), cy2, '700 24px sans-serif', COL_WHITE);
+            ctx.font = '800 36px sans-serif';
+            ctx.fillStyle = COL_WHITE;
+            ctx.textAlign = 'left';
+            ctx.letterSpacing = '4px';
+            ctx.fillText(raceName.toUpperCase(), mx2, ty2);
             ctx.letterSpacing = '0px';
         }
 
-        drawCenter(shareData.total, cy2 + 65, '800 72px sans-serif', COL_WHITE);
-        drawCenter('TOTAL TIME', cy2 + 90, '500 12px sans-serif', COL_MUTED);
+        ctx.font = '800 72px sans-serif';
+        ctx.fillStyle = COL_GOLD;
+        ctx.textAlign = 'left';
+        ctx.fillText(shareData.total, mx2, ty2 + 72);
+        ctx.font = '500 14px sans-serif';
+        ctx.fillStyle = COL_MUTED;
+        ctx.letterSpacing = '4px';
+        ctx.fillText('TOTAL TIME', mx2, ty2 + 92);
+        ctx.letterSpacing = '0px';
 
-        var barTop2 = cy2 + 120;
+        // Segment list
+        var listTop2 = ty2 + 120;
+        var listBot2 = H - 50;
+        var totalRows2 = laps.length;
+        var rowH2 = Math.floor((listBot2 - listTop2) / totalRows2);
+        if (rowH2 > 32) rowH2 = 32;
+        if (rowH2 < 20) rowH2 = 20;
         var barH2 = 5;
-        var availH2 = H - barTop2 - 60;
-        var rowH2 = Math.floor(availH2 / laps.length);
-        if (rowH2 > 44) rowH2 = 44;
-        if (rowH2 < 26) rowH2 = 26;
 
-        for (var j = 0; j < laps.length; j++) {
-            var lap2 = laps[j];
-            var y2 = barTop2 + j * rowH2;
-            var col2 = segColor(lap2.type);
-            var barW2 = Math.max(4, Math.round(barMaxW * lap2.dur / maxDur));
+        var sy2 = listTop2;
+        for (var ri2 = 0; ri2 < rounds.length; ri2++) {
+            var round2 = rounds[ri2];
+            var roundMidY2 = sy2 + (round2.length * rowH2) / 2;
 
-            ctx.font = '600 13px sans-serif';
-            ctx.fillStyle = col2;
-            ctx.textAlign = 'left';
-            ctx.fillText(lap2.name, marginX, y2);
-
-            ctx.font = '700 15px sans-serif';
-            ctx.fillStyle = COL_WHITE;
+            ctx.font = '700 24px sans-serif';
+            ctx.fillStyle = COL_DIM;
             ctx.textAlign = 'right';
-            ctx.fillText(fmt(lap2.dur), W - marginX, y2);
+            ctx.fillText(String(ri2 + 1).padStart(2, '0'), contentLeft2 - 14, roundMidY2 + 6);
 
-            var barY2 = y2 + 4;
-            ctx.fillStyle = 'rgba(255,255,255,0.04)';
-            ctx.fillRect(marginX, barY2, barMaxW, barH2);
-            ctx.fillStyle = col2;
-            ctx.fillRect(marginX, barY2, barW2, barH2);
+            for (var si2 = 0; si2 < round2.length; si2++) {
+                var seg2 = round2[si2];
+                var rowY2 = sy2 + si2 * rowH2;
+                var col2 = segColor(seg2.type);
+                var bw2 = Math.max(3, Math.round(barW_max2 * seg2.dur / maxDur));
+
+                ctx.font = '600 15px sans-serif';
+                ctx.fillStyle = col2;
+                ctx.textAlign = 'left';
+                ctx.fillText(seg2.name, contentLeft2, rowY2 + rowH2 / 2 + 1);
+
+                var barY2 = rowY2 + rowH2 / 2 + 6;
+                ctx.fillStyle = 'rgba(255,255,255,0.04)';
+                ctx.fillRect(contentLeft2, barY2, barW_max2, barH2);
+                ctx.fillStyle = col2;
+                ctx.fillRect(contentLeft2, barY2, bw2, barH2);
+
+                ctx.font = '700 15px sans-serif';
+                ctx.fillStyle = COL_WHITE;
+                ctx.textAlign = 'right';
+                ctx.fillText(fmt(seg2.dur), timeRight2, rowY2 + rowH2 / 2 + 1);
+            }
+
+            sy2 += round2.length * rowH2 + 4;
         }
 
-        ctx.letterSpacing = '4px';
-        drawCenter('ROXTRACK', H - 30, '500 12px sans-serif', '#252525');
+        // Footer
+        ctx.font = '700 18px sans-serif';
+        ctx.fillStyle = COL_GOLD;
+        ctx.textAlign = 'center';
+        ctx.letterSpacing = '6px';
+        ctx.fillText('ROXTRACK', W / 2, H - 22);
         ctx.letterSpacing = '0px';
     }
 
