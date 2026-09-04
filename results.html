@@ -647,34 +647,25 @@ function generateShareImage(mode) {
         // Stat strip with icons
         drawStatStrip(midY + 130, 140);
 
-        // Motivational text
-        ctx.letterSpacing = '4px';
-        drawCenter('8 RUNS  •  8 STATIONS  •  1 STRONGER YOU', midY + 310, '500 18px sans-serif', COL_DIM);
-        ctx.letterSpacing = '0px';
-
-        // Gold accent line
-        ctx.fillStyle = COL_GOLD;
-        ctx.fillRect(W / 2 - 30, midY + 330, 60, 2);
-
-        // Footer — small logo + "Tracked with"
-        var footY = H - 55;
+        // "Tracked with" + small logo below stat strip
+        var trackY = midY + 300;
         if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var flh = 36;
+            var flh = 22;
             var flw = flh * (logoImg.naturalWidth / logoImg.naturalHeight);
             var trackedText = 'TRACKED WITH';
             ctx.font = '500 14px sans-serif';
             ctx.letterSpacing = '3px';
             var tw = ctx.measureText(trackedText).width;
-            var totalW = tw + 10 + flw;
+            var totalW = tw + 8 + flw;
             var startX = (W - totalW) / 2;
             ctx.fillStyle = COL_DIM;
             ctx.textAlign = 'left';
-            ctx.fillText(trackedText, startX, footY + flh / 2 + 5);
+            ctx.fillText(trackedText, startX, trackY + flh / 2 + 5);
             ctx.letterSpacing = '0px';
-            ctx.drawImage(logoImg, startX + tw + 10, footY, flw, flh);
+            ctx.drawImage(logoImg, startX + tw + 8, trackY, flw, flh);
         } else {
             ctx.letterSpacing = '3px';
-            drawCenter('TRACKED WITH ROXTRACK', footY + 22, '500 14px sans-serif', COL_DIM);
+            drawCenter('TRACKED WITH ROXTRACK', trackY + 16, '500 14px sans-serif', COL_DIM);
             ctx.letterSpacing = '0px';
         }
 
@@ -724,25 +715,27 @@ function generateShareImage(mode) {
         // Stat strip with icons
         drawStatStrip(midY2 + 100, 120);
 
-        // Footer — small logo + "Tracked with"
-        var footY2 = H - 50;
+        // "Tracked with" + small logo below stat strip
+        var trackY2 = midY2 + 245;
         if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var flh2 = 30;
+            var flh2 = 18;
             var flw2 = flh2 * (logoImg.naturalWidth / logoImg.naturalHeight);
             var trackedText2 = 'TRACKED WITH';
             ctx.font = '500 12px sans-serif';
             ctx.letterSpacing = '3px';
             var tw2 = ctx.measureText(trackedText2).width;
+            ctx.letterSpacing = '0px';
             var totalW2 = tw2 + 8 + flw2;
             var startX2 = (W - totalW2) / 2;
             ctx.fillStyle = COL_DIM;
             ctx.textAlign = 'left';
-            ctx.fillText(trackedText2, startX2, footY2 + flh2 / 2 + 4);
+            ctx.letterSpacing = '3px';
+            ctx.fillText(trackedText2, startX2, trackY2 + flh2 / 2 + 4);
             ctx.letterSpacing = '0px';
-            ctx.drawImage(logoImg, startX2 + tw2 + 8, footY2, flw2, flh2);
+            ctx.drawImage(logoImg, startX2 + tw2 + 8, trackY2, flw2, flh2);
         } else {
             ctx.letterSpacing = '3px';
-            drawCenter('TRACKED WITH ROXTRACK', footY2 + 18, '500 12px sans-serif', COL_DIM);
+            drawCenter('TRACKED WITH ROXTRACK', trackY2 + 14, '500 12px sans-serif', COL_DIM);
             ctx.letterSpacing = '0px';
         }
     }
@@ -973,7 +966,7 @@ function generateSplitsImage(mode, raceName) {
         // ── Footer — small logo + "Tracked with" ──
         var footYS = baseY + 389 + segListH;
         if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var flhS = 30;
+            var flhS = 20;
             var flwS = flhS * (logoImg.naturalWidth / logoImg.naturalHeight);
             ctx.font = '500 13px sans-serif';
             ctx.letterSpacing = '3px';
@@ -982,7 +975,7 @@ function generateSplitsImage(mode, raceName) {
             ctx.fillText('TRACKED WITH', mx, footYS + 2);
             ctx.letterSpacing = '0px';
             var twS = ctx.measureText('TRACKED WITH').width;
-            ctx.drawImage(logoImg, mx + twS + 10, footYS - 14, flwS, flhS);
+            ctx.drawImage(logoImg, mx + twS + 10, footYS - 9, flwS, flhS);
         } else {
             ctx.font = '500 13px sans-serif';
             ctx.fillStyle = COL_DIM;
@@ -1136,7 +1129,7 @@ function generateSplitsImage(mode, raceName) {
         // ── Footer — small logo + "Tracked with" ──
         var footYP = H - 40;
         if (logoImg.complete && logoImg.naturalWidth > 0) {
-            var flhP = 24;
+            var flhP = 16;
             var flwP = flhP * (logoImg.naturalWidth / logoImg.naturalHeight);
             ctx.font = '500 11px sans-serif';
             ctx.letterSpacing = '3px';
@@ -1145,7 +1138,7 @@ function generateSplitsImage(mode, raceName) {
             ctx.fillText('TRACKED WITH', mx2, footYP + 2);
             ctx.letterSpacing = '0px';
             var twP = ctx.measureText('TRACKED WITH').width;
-            ctx.drawImage(logoImg, mx2 + twP + 8, footYP - 10, flwP, flhP);
+            ctx.drawImage(logoImg, mx2 + twP + 8, footYP - 7, flwP, flhP);
         } else {
             ctx.font = '500 11px sans-serif';
             ctx.fillStyle = COL_DIM;
