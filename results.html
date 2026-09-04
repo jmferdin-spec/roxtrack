@@ -464,81 +464,99 @@ function generateShareImage(mode) {
         ctx.closePath();
     }
 
-    // ── Draw stat strip (horizontal bar with values) ──
+    // ── Draw icons for stat boxes ──
+    function drawIcon(iconType, cx, cy, sz, color) {
+        var r = sz / 2;
+        ctx.save();
+        ctx.fillStyle = color;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = Math.max(2, sz * 0.09);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        switch (iconType) {
+            case 'run':
+                ctx.beginPath(); ctx.arc(cx + r*0.1, cy - r*0.5, r*0.16, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(cx, cy - r*0.3); ctx.lineTo(cx - r*0.08, cy + r*0.12); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx - r*0.08, cy + r*0.12); ctx.lineTo(cx + r*0.3, cy + r*0.5); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx - r*0.08, cy + r*0.12); ctx.lineTo(cx - r*0.35, cy + r*0.5); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx - r*0.25, cy - r*0.3); ctx.lineTo(cx, cy - r*0.12); ctx.lineTo(cx + r*0.3, cy - r*0.28); ctx.stroke();
+                break;
+            case 'station':
+                var bw = r * 0.14;
+                ctx.fillRect(cx - r*0.5, cy - bw/2, r, bw);
+                ctx.fillRect(cx - r*0.65, cy - r*0.32, r*0.22, r*0.64);
+                ctx.fillRect(cx + r*0.43, cy - r*0.32, r*0.22, r*0.64);
+                break;
+            case 'stopwatch':
+                ctx.beginPath(); ctx.arc(cx, cy + r*0.06, r*0.4, 0, Math.PI*2); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx, cy - r*0.34); ctx.lineTo(cx, cy - r*0.58); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx - r*0.12, cy - r*0.62); ctx.lineTo(cx + r*0.12, cy - r*0.62); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(cx, cy + r*0.06); ctx.lineTo(cx + r*0.2, cy - r*0.15); ctx.stroke();
+                break;
+            case 'pace':
+                ctx.beginPath(); ctx.arc(cx, cy + r*0.12, r*0.42, Math.PI*1.15, Math.PI*1.85); ctx.stroke();
+                var na = Math.PI * 1.42;
+                ctx.lineWidth = Math.max(2.5, sz * 0.1);
+                ctx.beginPath(); ctx.moveTo(cx, cy + r*0.12); ctx.lineTo(cx + Math.cos(na)*r*0.28, cy + r*0.12 + Math.sin(na)*r*0.28); ctx.stroke();
+                ctx.beginPath(); ctx.arc(cx, cy + r*0.12, r*0.06, 0, Math.PI*2); ctx.fill();
+                break;
+            case 'heart':
+                var hs = r * 0.48;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy + hs*0.75);
+                ctx.bezierCurveTo(cx - hs*1.4, cy + hs*0.05, cx - hs*0.75, cy - hs*1.15, cx, cy - hs*0.35);
+                ctx.bezierCurveTo(cx + hs*0.75, cy - hs*1.15, cx + hs*1.4, cy + hs*0.05, cx, cy + hs*0.75);
+                ctx.fill();
+                break;
+        }
+        ctx.restore();
+    }
+
+    // ── Draw stat strip with icons ──
     function drawStatStrip(y, stripH) {
         var mx = 60;
         var sw = W - mx * 2;
         roundRect(mx, y, sw, stripH, 12);
-        ctx.fillStyle = 'rgba(255,255,255,0.03)';
+        ctx.fillStyle = 'rgba(255,255,255,0.04)';
         ctx.fill();
-        ctx.strokeStyle = COL_BORDER;
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
         ctx.lineWidth = 1;
         ctx.stroke();
 
         var items = [
-            { val: shareData.run, label: 'RUNS', color: COL_RUN },
-            { val: shareData.station, label: 'STATIONS', color: COL_STATION }
+            { val: shareData.run, label: 'RUNS', color: COL_RUN, icon: 'run' },
+            { val: shareData.station, label: 'STATIONS', color: COL_STATION, icon: 'station' }
         ];
-        if (shareData.roxzone) items.push({ val: shareData.roxzone, label: 'ROXZONE', color: COL_ROXZONE });
-        items.push({ val: shareData.avgPace, label: 'AVG PACE', color: COL_PACE });
-        items.push({ val: avgHr > 0 ? String(shareData.avgHr) : '—', label: 'AVG HR', color: COL_HR });
+        if (shareData.roxzone) items.push({ val: shareData.roxzone, label: 'ROXZONE', color: COL_ROXZONE, icon: 'stopwatch' });
+        items.push({ val: shareData.avgPace, label: 'AVG PACE', color: COL_PACE, icon: 'pace' });
+        items.push({ val: avgHr > 0 ? String(shareData.avgHr) : '—', label: 'AVG HR', color: COL_HR, icon: 'heart' });
 
         var cellW = sw / items.length;
-        var valSize = Math.round(stripH * 0.38);
-        var lblSize = Math.round(stripH * 0.16);
-        var lblOff = Math.round(stripH * 0.28);
+        var iconSz = Math.round(stripH * 0.28);
+        var valSize = Math.round(stripH * 0.24);
+        var lblSize = Math.round(stripH * 0.11);
+
         for (var i = 0; i < items.length; i++) {
             var cx = mx + cellW * i + cellW / 2;
+            drawIcon(items[i].icon, cx, y + stripH * 0.22, iconSz, items[i].color);
             ctx.font = '700 ' + valSize + 'px sans-serif';
             ctx.fillStyle = items[i].color;
             ctx.textAlign = 'center';
-            ctx.fillText(items[i].val, cx, y + stripH / 2 - 2);
+            ctx.fillText(items[i].val, cx, y + stripH * 0.58);
             ctx.font = '500 ' + lblSize + 'px sans-serif';
             ctx.fillStyle = COL_DIM;
             ctx.letterSpacing = '2px';
-            ctx.fillText(items[i].label, cx, y + stripH / 2 + lblOff);
+            ctx.fillText(items[i].label, cx, y + stripH * 0.78);
             ctx.letterSpacing = '0px';
 
-            // Divider
             if (i < items.length - 1) {
                 ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+                ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.moveTo(mx + cellW * (i + 1), y + stripH * 0.2);
-                ctx.lineTo(mx + cellW * (i + 1), y + stripH * 0.8);
+                ctx.moveTo(mx + cellW * (i + 1), y + stripH * 0.1);
+                ctx.lineTo(mx + cellW * (i + 1), y + stripH * 0.9);
                 ctx.stroke();
             }
-        }
-    }
-
-    // ── Draw paired segment row ──
-    function drawSegRow(y, lap, x, cellW, rowH) {
-        var col = segColor(lap.type);
-        // Cell background
-        roundRect(x, y, cellW, rowH, 8);
-        ctx.fillStyle = 'rgba(255,255,255,0.025)';
-        ctx.fill();
-        // Left color accent
-        ctx.fillStyle = col;
-        ctx.fillRect(x, y + 6, 3, rowH - 12);
-
-        // Name
-        ctx.font = '600 20px sans-serif';
-        ctx.fillStyle = col;
-        ctx.textAlign = 'left';
-        ctx.fillText(lap.name, x + 16, y + rowH / 2 - 4);
-
-        // Time
-        ctx.font = '700 28px sans-serif';
-        ctx.fillStyle = COL_WHITE;
-        ctx.textAlign = 'right';
-        ctx.fillText(fmt(lap.dur), x + cellW - 16, y + rowH / 2 - 4);
-
-        // HR badge
-        if (lap.hr > 0) {
-            ctx.font = '500 14px sans-serif';
-            ctx.fillStyle = 'rgba(239,68,68,0.7)';
-            ctx.textAlign = 'right';
-            ctx.fillText('♥ ' + lap.hr, x + cellW - 16, y + rowH / 2 + 18);
         }
     }
 
@@ -549,85 +567,128 @@ function generateShareImage(mode) {
         // ── STORY 1080x1920 — totals centered ──
         var midY = H / 2;
 
-        // Brand
+        // Brand logo
         if (logoImg.complete && logoImg.naturalWidth > 0) {
             var lhCS = 90;
             var lwCS = lhCS * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, (W - lwCS) / 2, midY - 360, lwCS, lhCS);
+            ctx.drawImage(logoImg, (W - lwCS) / 2, midY - 380, lwCS, lhCS);
         } else {
             ctx.letterSpacing = '14px';
-            drawCenter('ROXTRACK', midY - 280, '700 52px sans-serif', COL_GOLD);
+            drawCenter('ROXTRACK', midY - 310, '700 52px sans-serif', COL_GOLD);
             ctx.letterSpacing = '0px';
-        }
-
-        // Date
-        if (shareData.date) {
-            drawCenter(shareData.date, midY - 230, '400 26px sans-serif', COL_DIM);
         }
 
         // Race name
         if (raceName) {
-            ctx.letterSpacing = '4px';
-            drawCenter(raceName.toUpperCase(), midY - 180, '700 40px sans-serif', COL_WHITE);
+            ctx.letterSpacing = '8px';
+            drawCenter(raceName.toUpperCase(), midY - 240, '700 44px sans-serif', COL_WHITE);
             ctx.letterSpacing = '0px';
         }
 
-        // Big total time
-        drawCenter(shareData.total, midY + 10, '800 200px sans-serif', COL_WHITE);
-        if (shareData.pct !== 100) {
-            drawCenter(shareData.pct + '% Distance', midY + 50, '400 24px sans-serif', COL_DIM);
-        }
-        drawCenter('TOTAL TIME', midY + 80, '500 20px sans-serif', COL_MUTED);
+        // Gold accent line
+        ctx.fillStyle = COL_GOLD;
+        ctx.fillRect(W / 2 - 35, midY - 212, 70, 3);
 
-        // Stat strip
-        drawStatStrip(midY + 130, 90);
+        // Date
+        if (shareData.date) {
+            drawCenter(shareData.date, midY - 185, '400 26px sans-serif', COL_DIM);
+        }
+
+        // Big total time with shadow
+        ctx.font = '800 200px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillText(shareData.total, W / 2 + 4, midY + 24);
+        ctx.fillStyle = COL_WHITE;
+        ctx.fillText(shareData.total, W / 2, midY + 20);
+
+        // TOTAL TIME label
+        ctx.letterSpacing = '10px';
+        drawCenter('TOTAL TIME', midY + 70, '500 22px sans-serif', COL_MUTED);
+        ctx.letterSpacing = '0px';
+
+        // Distance %
+        if (shareData.pct !== 100) {
+            drawCenter(shareData.pct + '% Distance', midY + 100, '400 20px sans-serif', COL_DIM);
+        }
+
+        // Stat strip with icons
+        drawStatStrip(midY + 130, 140);
+
+        // Motivational text
+        ctx.letterSpacing = '4px';
+        drawCenter('8 RUNS  •  8 STATIONS  •  1 STRONGER YOU', midY + 310, '500 18px sans-serif', COL_DIM);
+        ctx.letterSpacing = '0px';
+
+        // Gold accent line
+        ctx.fillStyle = COL_GOLD;
+        ctx.fillRect(W / 2 - 30, midY + 330, 60, 2);
 
         // Footer
         ctx.letterSpacing = '4px';
-        drawCenter('ROXTRACK', H - 50, '500 14px sans-serif', '#252525');
+        drawCenter('BUILT FOR HYROX ATHLETES', H - 50, '400 16px sans-serif', COL_DIM);
         ctx.letterSpacing = '0px';
 
     } else {
         // ── POST 1080x1080 — totals centered ──
         var midY2 = H / 2;
 
-        // Brand
+        // Brand logo
         if (logoImg.complete && logoImg.naturalWidth > 0) {
             var lhCP = 75;
             var lwCP = lhCP * (logoImg.naturalWidth / logoImg.naturalHeight);
-            ctx.drawImage(logoImg, (W - lwCP) / 2, midY2 - 285, lwCP, lhCP);
+            ctx.drawImage(logoImg, (W - lwCP) / 2, midY2 - 300, lwCP, lhCP);
         } else {
             ctx.letterSpacing = '14px';
-            drawCenter('ROXTRACK', midY2 - 220, '700 48px sans-serif', COL_GOLD);
+            drawCenter('ROXTRACK', midY2 - 245, '700 48px sans-serif', COL_GOLD);
             ctx.letterSpacing = '0px';
-        }
-
-        // Date
-        if (shareData.date) {
-            drawCenter(shareData.date, midY2 - 175, '400 22px sans-serif', COL_DIM);
         }
 
         // Race name
         if (raceName) {
-            ctx.letterSpacing = '3px';
-            drawCenter(raceName.toUpperCase(), midY2 - 130, '700 34px sans-serif', COL_WHITE);
+            ctx.letterSpacing = '6px';
+            drawCenter(raceName.toUpperCase(), midY2 - 190, '700 36px sans-serif', COL_WHITE);
             ctx.letterSpacing = '0px';
         }
 
-        // Big total time
-        drawCenter(shareData.total, midY2 + 30, '800 160px sans-serif', COL_WHITE);
-        if (shareData.pct !== 100) {
-            drawCenter(shareData.pct + '% Distance', midY2 + 65, '400 22px sans-serif', COL_DIM);
+        // Gold accent line
+        ctx.fillStyle = COL_GOLD;
+        ctx.fillRect(W / 2 - 30, midY2 - 168, 60, 3);
+
+        // Date
+        if (shareData.date) {
+            drawCenter(shareData.date, midY2 - 143, '400 22px sans-serif', COL_DIM);
         }
-        drawCenter('TOTAL TIME', midY2 + 90, '500 18px sans-serif', COL_MUTED);
 
-        // Stat strip
-        drawStatStrip(midY2 + 130, 80);
+        // Big total time with shadow
+        ctx.font = '800 160px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fillText(shareData.total, W / 2 + 3, midY2 + 13);
+        ctx.fillStyle = COL_WHITE;
+        ctx.fillText(shareData.total, W / 2, midY2 + 10);
 
-        // Footer
-        ctx.letterSpacing = '4px';
-        drawCenter('ROXTRACK', H - 30, '500 12px sans-serif', '#252525');
+        // TOTAL TIME label
+        ctx.letterSpacing = '8px';
+        drawCenter('TOTAL TIME', midY2 + 55, '500 18px sans-serif', COL_MUTED);
         ctx.letterSpacing = '0px';
+
+        // Distance %
+        if (shareData.pct !== 100) {
+            drawCenter(shareData.pct + '% Distance', midY2 + 80, '400 18px sans-serif', COL_DIM);
+        }
+
+        // Stat strip with icons
+        drawStatStrip(midY2 + 100, 120);
+
+        // Motivational text
+        ctx.letterSpacing = '3px';
+        drawCenter('8 RUNS  •  8 STATIONS  •  1 STRONGER YOU', midY2 + 255, '500 15px sans-serif', COL_DIM);
+        ctx.letterSpacing = '0px';
+
+        // Gold accent line
+        ctx.fillStyle = COL_GOLD;
+        ctx.fillRect(W / 2 - 25, midY2 + 272, 50, 2);
     }
 
     // Download
