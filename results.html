@@ -684,30 +684,49 @@ function generateSplitsImage(mode, raceName) {
         var barW_max = barRight - barLeft;
         var timeRight = W - mx;
 
+        // Pre-compute segment list height for vertical centering
+        var hasRoxzone = false;
+        for (var rzi = 0; rzi < laps.length; rzi++) { if (laps[rzi].type === 1) { hasRoxzone = true; break; } }
+        var roundGap = hasRoxzone ? 8 : 24;
+        var totalRows = laps.length;
+        var rowH = 38;
+        if (rowH > 42) rowH = 42;
+        if (rowH < 28) rowH = 28;
+        var barH = 8;
+        var segListH = totalRows * rowH + (rounds.length - 1) * roundGap;
+        var baseY = Math.max(40, Math.round((H - 361 - segListH) / 2));
+
         // ── Header ──
         ctx.font = '700 40px sans-serif';
         ctx.fillStyle = COL_GOLD;
         ctx.textAlign = 'left';
         ctx.letterSpacing = '12px';
-        ctx.fillText('ROXTRACK', mx, 70);
+        ctx.fillText('ROXTRACK', mx, baseY);
         ctx.letterSpacing = '0px';
 
         ctx.font = '400 16px sans-serif';
         ctx.fillStyle = COL_DIM;
         ctx.letterSpacing = '4px';
-        ctx.fillText('TRACK  |  TRAIN  |  RACE', mx, 95);
+        ctx.fillText('TRACK  |  TRAIN  |  RACE', mx, baseY + 25);
         ctx.letterSpacing = '0px';
 
-        // Date top-right
+        // Date + distance top-right
         if (shareData.date) {
             ctx.font = '500 22px sans-serif';
             ctx.fillStyle = COL_MUTED;
             ctx.textAlign = 'right';
-            ctx.fillText(shareData.date.toUpperCase(), timeRight, 70);
+            ctx.fillText(shareData.date.toUpperCase(), timeRight, baseY);
         }
+        var distLabel = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
+        ctx.font = '500 18px sans-serif';
+        ctx.fillStyle = COL_DIM;
+        ctx.textAlign = 'right';
+        ctx.letterSpacing = '2px';
+        ctx.fillText(distLabel, timeRight, baseY + 25);
+        ctx.letterSpacing = '0px';
 
         // ── Race name + total time ──
-        var titleY = 150;
+        var titleY = baseY + 80;
         if (raceName) {
             ctx.font = '800 56px sans-serif';
             ctx.fillStyle = COL_WHITE;
@@ -732,6 +751,7 @@ function generateSplitsImage(mode, raceName) {
 
         ctx.font = '500 18px sans-serif';
         ctx.fillStyle = COL_MUTED;
+        ctx.textAlign = 'left';
         ctx.letterSpacing = '6px';
         ctx.fillText('TOTAL TIME', mx, titleY + 158);
         ctx.letterSpacing = '0px';
@@ -768,12 +788,6 @@ function generateSplitsImage(mode, raceName) {
 
         // ── Segment list by round ──
         var listTop = stripY + stripH + 24;
-        var listBot = H - 90;
-        var totalRows = laps.length;
-        var rowH = Math.floor((listBot - listTop) / totalRows);
-        if (rowH > 42) rowH = 42;
-        if (rowH < 28) rowH = 28;
-        var barH = 8;
 
         var sy = listTop;
         for (var ri = 0; ri < rounds.length; ri++) {
@@ -813,7 +827,7 @@ function generateSplitsImage(mode, raceName) {
                 ctx.fillText(fmt(seg.dur), timeRight, rowY + rowH / 2 + 2);
             }
 
-            sy += round.length * rowH + 8;
+            sy += round.length * rowH + roundGap;
 
             // Divider line between rounds
             if (ri < rounds.length - 1) {
@@ -831,7 +845,7 @@ function generateSplitsImage(mode, raceName) {
         ctx.fillStyle = COL_DIM;
         ctx.textAlign = 'left';
         ctx.letterSpacing = '4px';
-        ctx.fillText('BUILT FOR HYROX ATHLETES', mx, H - 40);
+        ctx.fillText('BUILT FOR HYROX ATHLETES', mx, baseY + 389 + segListH);
         ctx.letterSpacing = '0px';
 
     } else {
@@ -843,29 +857,52 @@ function generateSplitsImage(mode, raceName) {
         var barW_max2 = barRight2 - barLeft2;
         var timeRight2 = W - mx2;
 
+        // Pre-compute for vertical centering
+        var hasRoxzone2 = false;
+        for (var rzi2 = 0; rzi2 < laps.length; rzi2++) { if (laps[rzi2].type === 1) { hasRoxzone2 = true; break; } }
+        var roundGap2 = hasRoxzone2 ? 4 : 16;
+        var totalRows2 = laps.length;
+        var rowH2 = 26;
+        var barH2 = 2;
+        var segListH2 = totalRows2 * rowH2 + (rounds.length - 1) * roundGap2;
+        var baseY2 = Math.round((H - 211 - segListH2) / 2);
+        while (baseY2 < 30 && rowH2 > 20) {
+            rowH2--;
+            segListH2 = totalRows2 * rowH2 + (rounds.length - 1) * roundGap2;
+            baseY2 = Math.round((H - 211 - segListH2) / 2);
+        }
+        if (baseY2 < 20) baseY2 = 20;
+
         // Header
         ctx.font = '700 32px sans-serif';
         ctx.fillStyle = COL_GOLD;
         ctx.textAlign = 'left';
         ctx.letterSpacing = '8px';
-        ctx.fillText('ROXTRACK', mx2, 50);
+        ctx.fillText('ROXTRACK', mx2, baseY2);
         ctx.letterSpacing = '0px';
 
         ctx.font = '400 13px sans-serif';
         ctx.fillStyle = COL_DIM;
         ctx.letterSpacing = '3px';
-        ctx.fillText('BUILT FOR HYROX ATHLETES', mx2, 72);
+        ctx.fillText('BUILT FOR HYROX ATHLETES', mx2, baseY2 + 22);
         ctx.letterSpacing = '0px';
 
         if (shareData.date) {
             ctx.font = '500 18px sans-serif';
             ctx.fillStyle = COL_MUTED;
             ctx.textAlign = 'right';
-            ctx.fillText(shareData.date.toUpperCase(), timeRight2, 50);
+            ctx.fillText(shareData.date.toUpperCase(), timeRight2, baseY2);
         }
+        var distLabel2 = shareData.pct === 100 ? '100% DISTANCE' : shareData.pct + '% DISTANCE';
+        ctx.font = '500 14px sans-serif';
+        ctx.fillStyle = COL_DIM;
+        ctx.textAlign = 'right';
+        ctx.letterSpacing = '2px';
+        ctx.fillText(distLabel2, timeRight2, baseY2 + 22);
+        ctx.letterSpacing = '0px';
 
         // Race name + total
-        var ty2 = 105;
+        var ty2 = baseY2 + 55;
         if (raceName) {
             ctx.font = '800 34px sans-serif';
             ctx.fillStyle = COL_WHITE;
@@ -917,12 +954,6 @@ function generateSplitsImage(mode, raceName) {
 
         // Segment list
         var listTop2 = strip2Y + strip2H + 16;
-        var listBot2 = H - 50;
-        var totalRows2 = laps.length;
-        var rowH2 = Math.floor((listBot2 - listTop2) / totalRows2);
-        if (rowH2 > 32) rowH2 = 32;
-        if (rowH2 < 20) rowH2 = 20;
-        var barH2 = 2;
 
         var sy2 = listTop2;
         for (var ri2 = 0; ri2 < rounds.length; ri2++) {
@@ -957,7 +988,7 @@ function generateSplitsImage(mode, raceName) {
                 ctx.fillText(fmt(seg2.dur), timeRight2, rowY2 + rowH2 / 2 + 1);
             }
 
-            sy2 += round2.length * rowH2 + 4;
+            sy2 += round2.length * rowH2 + roundGap2;
 
             // Divider line between rounds
             if (ri2 < rounds.length - 1) {
